@@ -12,8 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,20 +24,20 @@ public class AuthUserController
 {
     private UserRepository userRepository;
     private AuthUserService authUserService;
-    // private AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
     private PasswordEncoder passwordEncoder;
 
     @Autowired
     public AuthUserController(
         UserRepository userRepository,
         AuthUserService authUserService,
-        // AuthenticationManager authenticationManager,
+         AuthenticationManager authenticationManager,
         PasswordEncoder passwordEncoder
     )
     {
         this.userRepository = userRepository;
         this.authUserService = authUserService;
-        // this.authenticationManager = authenticationManager;
+         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -59,12 +61,11 @@ public class AuthUserController
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody LoginDto loginDto)
     {
-        /*Authentication authentication = authenticationManager
-            .authenticate(
-                new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword())
-            );
+        Authentication authenticationRequest =
+            UsernamePasswordAuthenticationToken.unauthenticated(loginDto.getUsername(), loginDto.getPassword());
+        Authentication authenticationResponse = this.authenticationManager.authenticate(authenticationRequest);
 
-       SecurityContextHolder.getContext().setAuthentication(authentication)*/;
+       SecurityContextHolder.getContext().setAuthentication(authenticationResponse);
 
         return new ResponseEntity<>("User login Successfully", HttpStatus.OK);
     }
