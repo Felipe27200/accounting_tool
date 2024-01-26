@@ -6,6 +6,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,8 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 
 import javax.sql.DataSource;
 
@@ -25,14 +27,24 @@ public class SecurityConfig
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
     {
-        http.authorizeHttpRequests((authorize) -> {
-            authorize
-                // Routes without authentication
-                .requestMatchers(HttpMethod.POST, "api/signup").permitAll()
-                .requestMatchers(HttpMethod.POST, "api/login").permitAll()
-                // .requestMatchers(HttpMethod.GET, "api/test").hasAnyRole("PERSONAL_ACCOUNTANT")
-                .anyRequest().authenticated();
-        });
+        http
+            .authorizeHttpRequests((authorize) -> {
+                authorize
+                    // Routes without authentication
+                    .requestMatchers(HttpMethod.POST, "api/signup").permitAll()
+                    .requestMatchers(HttpMethod.POST, "api/login").permitAll()
+                    // .requestMatchers(HttpMethod.GET, "api/test").hasAnyRole("PERSONAL_ACCOUNTANT")
+                    .anyRequest().authenticated();
+            })
+            /*.securityContext((securityContext) -> {
+                securityContext.securityContextRepository(
+                    new DelegatingSecurityContextRepository(
+                        new RequestAttributeSecurityContextRepository(),
+                        new HttpSessionSecurityContextRepository()
+                    )
+                );
+            })*/
+            ;
 
         http.csrf(csrf -> csrf.disable());
 

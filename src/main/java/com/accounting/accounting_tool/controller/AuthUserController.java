@@ -5,6 +5,7 @@ import com.accounting.accounting_tool.dto.SignUPDto;
 import com.accounting.accounting_tool.entity.Role;
 import com.accounting.accounting_tool.entity.User;
 import com.accounting.accounting_tool.repository.UserRepository;
+import com.accounting.accounting_tool.response.BasicResponse;
 import com.accounting.accounting_tool.service.AuthUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -59,20 +60,23 @@ public class AuthUserController
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticateUser(@RequestBody LoginDto loginDto)
+    public BasicResponse<?> authenticateUser(@RequestBody LoginDto loginDto)
     {
         Authentication authenticationRequest =
             UsernamePasswordAuthenticationToken.unauthenticated(loginDto.getUsername(), loginDto.getPassword());
         Authentication authenticationResponse = this.authenticationManager.authenticate(authenticationRequest);
 
-       SecurityContextHolder.getContext().setAuthentication(authenticationResponse);
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authenticationResponse);
 
-        return new ResponseEntity<>("User login Successfully", HttpStatus.OK);
+        SecurityContextHolder.setContext(context);
+
+        return new BasicResponse<>(SecurityContextHolder.getContext(), "successful");
     }
 
     @GetMapping("/test")
-    public ResponseEntity<?> test()
+    public BasicResponse<?> test()
     {
-        return new ResponseEntity<>("Enter to the app", HttpStatus.OK);
+        return new BasicResponse<>("User access Successfully", "successful");
     }
 }
