@@ -1,5 +1,12 @@
 package com.accounting.accounting_tool.security;
 
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -7,23 +14,31 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.context.DelegatingSecurityContextRepository;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 
 import javax.sql.DataSource;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig
+public class SecurityConfig extends WebSecurityConfigurerAdapter
 {
+    private final RsaKeyProperties rsaKeyProperties;
+
+    @Autowired
+    public SecurityConfig(RsaKeyProperties rsaKeyProperties)
+    {
+        this.rsaKeyProperties = rsaKeyProperties;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
     {
@@ -33,20 +48,12 @@ public class SecurityConfig
                     // Routes without authentication
                     .requestMatchers(HttpMethod.POST, "api/signup").permitAll()
                     .requestMatchers(HttpMethod.POST, "api/login").permitAll()
-                    // .requestMatchers(HttpMethod.GET, "api/test").hasAnyRole("PERSONAL_ACCOUNTANT")
                     .anyRequest().authenticated();
             })
-            /*.securityContext((securityContext) -> {
-                securityContext.securityContextRepository(
-                    new DelegatingSecurityContextRepository(
-                        new RequestAttributeSecurityContextRepository(),
-                        new HttpSessionSecurityContextRepository()
-                    )
-                );
-            })*/
-            ;
-
-        http.csrf(csrf -> csrf.disable());
+            .csrf((csrf) -> csrf.disable())
+            .httpBasic(Customizer.withDefaults())
+            .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()))
+            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
@@ -92,9 +99,20 @@ public class SecurityConfig
         return new ProviderManager(authenticationProvider);
     }
 
+    /*
+    * +---------+
+    * | ENCODER |
+    * +---------+
+    *
+    * The encoder will be used to encode the signature.
+    * */
     @Bean
-    public HttpSessionSecurityContextRepository httpSessionSecurityContextRepository()
+    public NimbusJwtEncoder jwtDecoder()
     {
-         return new HttpSessionSecurityContextRepository();
+        JWK jwk = new RSAKey.Builder(rsaKeyProperties.publicKey()).privateKey(rsaKeyProperties.privateKey()).build();
+        JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
+
+        // JwtDecoder to use the public key
+         return new NimbusJwtEncoder(jwks);
     }
 }

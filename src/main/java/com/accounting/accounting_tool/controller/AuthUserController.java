@@ -2,7 +2,6 @@ package com.accounting.accounting_tool.controller;
 
 import com.accounting.accounting_tool.dto.LoginDto;
 import com.accounting.accounting_tool.dto.SignUPDto;
-import com.accounting.accounting_tool.entity.Role;
 import com.accounting.accounting_tool.entity.User;
 import com.accounting.accounting_tool.repository.UserRepository;
 import com.accounting.accounting_tool.response.BasicResponse;
@@ -16,7 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
