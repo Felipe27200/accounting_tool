@@ -30,7 +30,7 @@ public class AuthUserController
     public AuthUserController(
         UserRepository userRepository,
         AuthUserService authUserService,
-         AuthenticationManager authenticationManager,
+        AuthenticationManager authenticationManager,
         PasswordEncoder passwordEncoder
     )
     {
