@@ -6,6 +6,7 @@ import com.accounting.accounting_tool.entity.User;
 import com.accounting.accounting_tool.repository.UserRepository;
 import com.accounting.accounting_tool.response.BasicResponse;
 import com.accounting.accounting_tool.service.AuthUserService;
+import com.accounting.accounting_tool.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,19 +26,22 @@ public class AuthUserController
     private AuthUserService authUserService;
     private AuthenticationManager authenticationManager;
     private PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
 
     @Autowired
     public AuthUserController(
         UserRepository userRepository,
         AuthUserService authUserService,
         AuthenticationManager authenticationManager,
-        PasswordEncoder passwordEncoder
+        PasswordEncoder passwordEncoder,
+        TokenService tokenService
     )
     {
         this.userRepository = userRepository;
         this.authUserService = authUserService;
-         this.authenticationManager = authenticationManager;
+        this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
+        this.tokenService = tokenService;
     }
 
     @PostMapping("/signup")
@@ -76,5 +80,13 @@ public class AuthUserController
     public BasicResponse<?> test()
     {
         return new BasicResponse<>("User access Successfully", "successful");
+    }
+
+    @PostMapping("/token")
+    public String token(Authentication authentication)
+    {
+        String token = tokenService.generateToken(authentication);
+
+        return token;
     }
 }
