@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -22,9 +21,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "${apiPrefix}")
 public class AuthUserController
 {
+    private final AuthenticationManager authenticationManager;
     private UserRepository userRepository;
     private AuthUserService authUserService;
-    private AuthenticationManager authenticationManager;
     private PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
 
@@ -32,16 +31,15 @@ public class AuthUserController
     public AuthUserController(
         UserRepository userRepository,
         AuthUserService authUserService,
-        AuthenticationManager authenticationManager,
         PasswordEncoder passwordEncoder,
-        TokenService tokenService
-    )
+        TokenService tokenService,
+        AuthenticationManager authenticationManager)
     {
         this.userRepository = userRepository;
         this.authUserService = authUserService;
-        this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/signup")
@@ -64,22 +62,26 @@ public class AuthUserController
     @PostMapping("/login")
     public BasicResponse<?> authenticateUser(@RequestBody LoginDto loginDto)
     {
-        Authentication authenticationRequest =
-            UsernamePasswordAuthenticationToken.unauthenticated(loginDto.getUsername(), loginDto.getPassword());
-        Authentication authenticationResponse = this.authenticationManager.authenticate(authenticationRequest);
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword())
+        );
 
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authenticationResponse);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        SecurityContextHolder.setContext(context);
+        String jwt = tokenService.generateToken(authentication);
 
-        return new BasicResponse<>(SecurityContextHolder.getContext(), "successful");
+        return new BasicResponse<>(jwt, "successful");
     }
 
     @GetMapping("/test")
     public BasicResponse<?> test()
     {
-        return new BasicResponse<>("User access Successfully", "successful");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated())
+            return new BasicResponse<>(authentication.getAuthorities(), "successful");
+
+        return new BasicResponse<>("I don't get the user :(, prick!!!", "successful");
     }
 
     @PostMapping("/token")

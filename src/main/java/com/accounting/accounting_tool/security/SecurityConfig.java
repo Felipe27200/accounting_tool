@@ -53,8 +53,7 @@ public class SecurityConfig
                     // Routes without authentication
                     .requestMatchers(HttpMethod.POST, "api/login").permitAll()
                     .requestMatchers(HttpMethod.POST, "api/signup").permitAll()
-                    .requestMatchers(HttpMethod.POST, "api/token").permitAll()
-                    .requestMatchers(HttpMethod.GET, "api/test").permitAll()
+                    // .requestMatchers(HttpMethod.GET, "api/test").permitAll()
                     .anyRequest().authenticated();
             })
             .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())) // We will use the JWT to the configuration
