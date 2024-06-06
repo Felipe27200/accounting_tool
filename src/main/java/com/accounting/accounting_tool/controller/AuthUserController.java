@@ -7,6 +7,7 @@ import com.accounting.accounting_tool.repository.UserRepository;
 import com.accounting.accounting_tool.response.BasicResponse;
 import com.accounting.accounting_tool.service.AuthUserService;
 import com.accounting.accounting_tool.service.TokenService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,7 +61,7 @@ public class AuthUserController
     }
 
     @PostMapping("/login")
-    public BasicResponse<?> authenticateUser(@RequestBody LoginDto loginDto)
+    public BasicResponse<?> authenticateUser(@Valid @RequestBody LoginDto loginDto)
     {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword())
@@ -71,24 +72,5 @@ public class AuthUserController
         String jwt = tokenService.generateToken(authentication);
 
         return new BasicResponse<>(jwt, "successful");
-    }
-
-    @GetMapping("/test")
-    public BasicResponse<?> test()
-    {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null && authentication.isAuthenticated())
-            return new BasicResponse<>(authentication.getAuthorities(), "successful");
-
-        return new BasicResponse<>("I don't get the user :(, prick!!!", "successful");
-    }
-
-    @PostMapping("/token")
-    public String token(Authentication authentication)
-    {
-        String token = tokenService.generateToken(authentication);
-
-        return token;
     }
 }
