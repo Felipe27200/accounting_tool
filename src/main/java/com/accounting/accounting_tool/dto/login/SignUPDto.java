@@ -1,4 +1,4 @@
-package com.accounting.accounting_tool.dto;
+package com.accounting.accounting_tool.dto.login;
 
 public class SignUPDto
 {
