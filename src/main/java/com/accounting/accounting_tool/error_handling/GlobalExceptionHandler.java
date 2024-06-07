@@ -1,9 +1,12 @@
 package com.accounting.accounting_tool.error_handling;
 
+import com.accounting.accounting_tool.error_handling.exception.NotFoundException;
+import com.accounting.accounting_tool.error_handling.response.CustomErrorResponse;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,6 +38,17 @@ public class GlobalExceptionHandler
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<?> handleNotFoundErrors(Exception ex)
+    {
+        CustomErrorResponse errorResponse = new CustomErrorResponse();
+
+        errorResponse.setStatus(HttpStatus.NOT_FOUND.value());
+        errorResponse.setMessage(ex.getMessage());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
     // Exception handling for Validation Error of the Inputs
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleValidationErrors(MethodArgumentNotValidException ex)
@@ -52,6 +66,20 @@ public class GlobalExceptionHandler
             .collect(Collectors.toList());
 
         return new ResponseEntity<>(this.getErrorsMap(errors), new HttpHeaders(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<?> handleMismatchRequest(HttpMessageNotReadableException exc)
+    {
+        String errorMessage = exc.getMessage();
+
+        CustomErrorResponse errorsResponse = new CustomErrorResponse();
+
+        errorsResponse.setStatus(HttpStatus.BAD_REQUEST.value());
+        errorsResponse.setMessage(errorMessage);
+
+        // Return an error response.
+        return new ResponseEntity<>(errorsResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler

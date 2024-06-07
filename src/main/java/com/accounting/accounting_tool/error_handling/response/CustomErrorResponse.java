@@ -1,4 +1,4 @@
-package com.accounting.accounting_tool.error_handling;
+package com.accounting.accounting_tool.error_handling.response;
 
 public class CustomErrorResponse
 {

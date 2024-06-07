@@ -1,7 +1,7 @@
 package com.accounting.accounting_tool.controller;
 
-import com.accounting.accounting_tool.dto.LoginDto;
-import com.accounting.accounting_tool.dto.SignUPDto;
+import com.accounting.accounting_tool.dto.login.LoginDto;
+import com.accounting.accounting_tool.dto.login.SignUPDto;
 import com.accounting.accounting_tool.entity.User;
 import com.accounting.accounting_tool.repository.UserRepository;
 import com.accounting.accounting_tool.response.BasicResponse;
