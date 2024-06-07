@@ -54,6 +54,12 @@ public class User
         this.username = username;
     }
 
+    public User(String name, String password, String username) {
+        this.name = name;
+        this.username = username;
+        this.password = password;
+    }
+
     public User(Long id, String name, String username, String password) {
         this.id = id;
         this.name = name;
