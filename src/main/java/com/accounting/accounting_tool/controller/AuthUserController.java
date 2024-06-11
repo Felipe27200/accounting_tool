@@ -1,7 +1,7 @@
 package com.accounting.accounting_tool.controller;
 
-import com.accounting.accounting_tool.dto.login.LoginDto;
-import com.accounting.accounting_tool.dto.login.SignUPDto;
+import com.accounting.accounting_tool.dto.login.LoginDTO;
+import com.accounting.accounting_tool.dto.login.SignUpDTO;
 import com.accounting.accounting_tool.entity.User;
 import com.accounting.accounting_tool.repository.UserRepository;
 import com.accounting.accounting_tool.response.BasicResponse;
@@ -44,7 +44,7 @@ public class AuthUserController
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody SignUPDto signUPDto)
+    public ResponseEntity<?> registerUser(@RequestBody SignUpDTO signUPDto)
     {
         if (userRepository.findUserByUsername(signUPDto.getUsername()) != null)
             return new ResponseEntity<>("Username is already exist!", HttpStatus.BAD_REQUEST);
@@ -61,7 +61,7 @@ public class AuthUserController
     }
 
     @PostMapping("/login")
-    public BasicResponse<?> authenticateUser(@Valid @RequestBody LoginDto loginDto)
+    public BasicResponse<?> authenticateUser(@Valid @RequestBody LoginDTO loginDto)
     {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword())
