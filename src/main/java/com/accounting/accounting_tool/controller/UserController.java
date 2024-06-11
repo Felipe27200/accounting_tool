@@ -1,8 +1,11 @@
 package com.accounting.accounting_tool.controller;
 
+import com.accounting.accounting_tool.dto.login.ChangePasswordDTO;
 import com.accounting.accounting_tool.dto.user.GetUserDTO;
+import com.accounting.accounting_tool.dto.user.UpdateUserDTO;
 import com.accounting.accounting_tool.entity.User;
 import com.accounting.accounting_tool.service.UserService;
+import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,16 +31,40 @@ public class UserController
     ) {
         this.userService = userService;
         this.modelMapper = modelMapper;
+
+        /*
+        * This is used to define explicit mappings
+        * between source and destination properties
+        * */
+        this.modelMapper.typeMap(User.class, GetUserDTO.class)
+            .addMapping(User::getUsername, GetUserDTO::setUserName);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> update (@RequestBody User userModified, @PathVariable Long id)
+    @PutMapping("/update")
+    public ResponseEntity<?> update (@Valid @RequestBody UpdateUserDTO newName)
     {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        userModified.setUsername(authentication.getName());
+        User user = this.userService.findByUsername(authentication.getName());
+        user.setName(newName.getName());
 
-        return new ResponseEntity<>(userModified, HttpStatus.OK);
+        GetUserDTO userDTO = this.modelMapper.map(this.userService.update(user), GetUserDTO.class);
+
+        return new ResponseEntity<>(userDTO, HttpStatus.OK);
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword (@Valid @RequestBody ChangePasswordDTO changePasswordDTO) throws Exception
+    {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String message = this.userService.changePassword(
+            changePasswordDTO.getOldPassword(),
+            changePasswordDTO.getNewPassword(),
+            changePasswordDTO.getPasswordConfirmation(),
+            authentication.getName()
+        );
+
+        return new ResponseEntity<>(message, HttpStatus.OK);
     }
 
     @GetMapping("/search/{id}")

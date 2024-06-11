@@ -1,15 +1,22 @@
 package com.accounting.accounting_tool.dto.login;
 
-public class SignUPDto
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public class SignUpDTO
 {
+    @NotBlank(message = "The name of the user can not be empty")
     private String name;
+    @NotBlank(message = "The password is required")
+    @Size(min = 8, message = "The password have to have minimum 8 characters")
     private String password;
+    @NotBlank(message = "The username is required")
     private String username;
 
-    public SignUPDto() {
+    public SignUpDTO() {
     }
 
-    public SignUPDto(String name, String password, String username) {
+    public SignUpDTO(String name, String password, String username) {
         this.name = name;
         this.password = password;
         this.username = username;

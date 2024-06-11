@@ -6,6 +6,7 @@ import com.accounting.accounting_tool.error_handling.exception.NotFoundException
 import com.accounting.accounting_tool.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,11 +16,13 @@ import java.util.Optional;
 public class UserService
 {
     private UserRepository userRepository;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService (UserRepository userRepository)
+    public UserService (UserRepository userRepository, PasswordEncoder passwordEncoder)
     {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -82,5 +85,26 @@ public class UserService
         this.userRepository.deleteById(oldUser.getId());
 
         return "The user: " + oldUser.getName() + " was deleted";
+    }
+
+    @Transactional
+    public String changePassword(String oldPassword, String newPassword, String passwordConfirmation, String username) throws Exception
+    {
+        if (!newPassword.equals(passwordConfirmation))
+            throw new Exception("The new password and the password confirmation are not the same.");
+
+        User user = this.findByUsername(username);
+
+        /*
+        * The matches() method is useful to compare text not encrypted and encrypted
+        * and verify if the both make match.
+        * */
+        if (!this.passwordEncoder.matches(oldPassword, user.getPassword()))
+            throw new Exception("The current password is not that.");
+
+        user.setPassword(this.passwordEncoder.encode(newPassword));
+        this.userRepository.save(user);
+
+        return "Password updated successfully";
     }
 }

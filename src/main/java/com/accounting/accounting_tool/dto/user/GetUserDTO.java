@@ -55,20 +55,4 @@ public class GetUserDTO
         this.role = role;
     }
 
-    public static List<GetUserDTO> convertEntityListToDTOList(List<User> userList)
-    {
-        List<GetUserDTO> userDTOList = new ArrayList<>();
-
-        for (User user: userList)
-        {
-            userDTOList.add(new GetUserDTO (
-                user.getId(),
-                user.getName(),
-                user.getUsername(),
-                user.getRole()
-            ));
-        }
-
-        return userDTOList;
-    }
 }
