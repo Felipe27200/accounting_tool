@@ -7,13 +7,13 @@ import java.util.Date;
 
 @Entity
 @Table(
-    name = "accountings"
+    name = "accounts"
 )
-public class Accounting
+public class Account
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "accounting_name")
+    @Column(name = "account_id")
     private Long id;
 
     @Column(nullable = false)
@@ -34,18 +34,35 @@ public class Accounting
     )
     private Category category;
 
-    public Accounting() {
+    @ManyToOne
+    @JoinColumn(
+        name = "financial_statement_id",
+        referencedColumnName = "financial_statement_id",
+        nullable = false
+    )
+    private FinancialStatement financialStatement;
+
+    public Account() {
     }
 
-    public Accounting(Long id) {
+    public Account(Long id) {
         this.id = id;
     }
 
-    public Accounting(Long id, BigDecimal amount, Date date, boolean isRecurring) {
+    public Account(Long id, BigDecimal amount, Date date, boolean isRecurring) {
         this.id = id;
         this.amount = amount;
         this.date = date;
         this.isRecurring = isRecurring;
+    }
+
+    public Account(Long id, BigDecimal amount, Date date, boolean isRecurring, Category category, FinancialStatement financialStatement) {
+        this.id = id;
+        this.amount = amount;
+        this.date = date;
+        this.isRecurring = isRecurring;
+        this.category = category;
+        this.financialStatement = financialStatement;
     }
 
     public Long getId() {
@@ -86,5 +103,13 @@ public class Accounting
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public FinancialStatement getFinancialStatement() {
+        return financialStatement;
+    }
+
+    public void setFinancialStatement(FinancialStatement financialStatement) {
+        this.financialStatement = financialStatement;
     }
 }

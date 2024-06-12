@@ -11,7 +11,7 @@ import java.util.List;
 public interface AccountCatalogueRepository extends JpaRepository<AccountCatalogue, Long>
 {
     public AccountCatalogue findByName(String name);
-    public List<AccountCatalogue> findByIsEarning(boolean isEarning);
+    public List<AccountCatalogue> findByTypeAccount(Integer typeAccount);
 
     @Query(
         value = "SELECT * FROM accounts_catalogue AS a WHERE name LIKE %?1%",

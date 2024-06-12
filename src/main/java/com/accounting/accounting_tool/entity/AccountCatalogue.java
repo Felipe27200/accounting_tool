@@ -22,10 +22,11 @@ public class AccountCatalogue
     private String name;
 
     @Column(
-        name = "is_earning",
-        nullable = false
+        name = "type_account",
+        nullable = false,
+        columnDefinition = "TINYINT"
     )
-    private boolean isEarning;
+    private Integer typeAccount;
 
     public AccountCatalogue() { }
 
@@ -37,10 +38,10 @@ public class AccountCatalogue
         this.name = name;
     }
 
-    public AccountCatalogue(Long id, String name, boolean isEarning) {
+    public AccountCatalogue(Long id, String name, Integer typeAccount) {
         this.id = id;
         this.name = name;
-        this.isEarning = isEarning;
+        this.typeAccount = typeAccount;
     }
 
     public Long getId() {
@@ -51,8 +52,8 @@ public class AccountCatalogue
         return name;
     }
 
-    public boolean isEarning() {
-        return isEarning;
+    public Integer typeAccount() {
+        return typeAccount;
     }
 
     public void setId(Long id) {
@@ -63,7 +64,11 @@ public class AccountCatalogue
         this.name = name;
     }
 
-    public void setEarning(boolean earning) {
-        isEarning = earning;
+    public Integer getTypeAccount() {
+        return typeAccount;
+    }
+
+    public void setTypeAccount(Integer typeAccount) {
+        this.typeAccount = typeAccount;
     }
 }

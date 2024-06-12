@@ -46,7 +46,7 @@ public class AccountCatalogueService
         }
 
         oldAccountCatalogue.setName(accountCatalogue.getName());
-        oldAccountCatalogue.setEarning(accountCatalogue.isEarning());
+        oldAccountCatalogue.setTypeAccount(accountCatalogue.getTypeAccount());
 
         return this.accountCatalogueRepository.save(oldAccountCatalogue);
     }

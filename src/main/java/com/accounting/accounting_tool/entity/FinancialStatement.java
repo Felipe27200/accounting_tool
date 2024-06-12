@@ -3,7 +3,6 @@ package com.accounting.accounting_tool.entity;
 import jakarta.persistence.*;
 
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(
@@ -25,30 +24,8 @@ public class FinancialStatement
     private Date initDate;
 
     @Temporal(TemporalType.DATE)
-    @Column(name = "end_date", nullable = false)
+    @Column(name = "end_date", nullable = true)
     private Date endDate;
-
-    @ManyToOne()
-    @JoinColumn(
-        name = "user_id",
-        referencedColumnName = "user_id",
-        nullable = false
-    )
-    private User user;
-
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-        name = "category_statement",
-        joinColumns = @JoinColumn(
-            name = "financial_statement_id",
-            referencedColumnName = "financial_statement_id"
-        ),
-        inverseJoinColumns = @JoinColumn(
-            name = "category_id",
-            referencedColumnName = "category_id"
-        )
-    )
-    private List<Category> categories;
 
     public FinancialStatement() {
     }
@@ -90,13 +67,5 @@ public class FinancialStatement
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 }
