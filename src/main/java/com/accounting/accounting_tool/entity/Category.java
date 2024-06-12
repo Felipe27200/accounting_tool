@@ -33,6 +33,14 @@ public class Category
     )
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+        name = "account_catalogue_id",
+        referencedColumnName = "account_catalogue_id",
+        nullable = false
+    )
+    private AccountCatalogue accountCatalogue;
+
     public Category() { }
 
     public Category(Long id) {
@@ -60,6 +68,14 @@ public class Category
         this.name = name;
         this.parentCategory = parentCategory;
         this.user = user;
+    }
+
+    public Category(Long id, String name, Long parentCategory, User user, AccountCatalogue accountCatalogue) {
+        this.id = id;
+        this.name = name;
+        this.parentCategory = parentCategory;
+        this.user = user;
+        this.accountCatalogue = accountCatalogue;
     }
 
     public Long getId() {
@@ -92,5 +108,13 @@ public class Category
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public AccountCatalogue getAccountCatalogue() {
+        return accountCatalogue;
+    }
+
+    public void setAccountCatalogue(AccountCatalogue accountCatalogue) {
+        this.accountCatalogue = accountCatalogue;
     }
 }
