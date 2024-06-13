@@ -33,6 +33,10 @@ public class CategoryService
     public Category save (Category newCategory, String username, Long accountCatalogueId)
     {
         User user = this.userService.findByUsername(username);
+
+        if (newCategory.getParentCategory() != null)
+            this.checkParentCategoryById(newCategory.getParentCategory());
+
         AccountCatalogue accountCatalogue = this.accountCatalogueService.findById(accountCatalogueId);
         Category checkCategory = this.categoryRepository.findByName(newCategory.getName());
 
@@ -47,9 +51,19 @@ public class CategoryService
 
     public List<Category> findAll()
     {
-        List<Category> categoryList = this.categoryRepository.findAll();
+        List<Category> categoryList = this.categoryRepository.findAllWithAssociations();
 
         return categoryList;
+    }
+
+    public Category findById(Long id)
+    {
+        Optional<Category> category = this.categoryRepository.findById(id);
+
+        if (category.isEmpty())
+            throw new NotFoundException(String.format("The category with the id: %d does not exist", id));
+
+        return category.get();
     }
 
     public Category findByName(String name)
@@ -60,5 +74,16 @@ public class CategoryService
             throw new NotFoundException("The category: '" + name + "' does not exists");
 
         return category;
+    }
+
+    private void checkParentCategoryById(Long parentId)
+    {
+        try {
+            this.findById(parentId);
+        }
+        catch(NotFoundException ex)
+        {
+            throw new NotFoundException("The parent Category was not found.");
+        }
     }
 }
