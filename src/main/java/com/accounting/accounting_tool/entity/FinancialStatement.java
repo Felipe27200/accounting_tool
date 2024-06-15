@@ -27,6 +27,14 @@ public class FinancialStatement
     @Column(name = "end_date", nullable = true)
     private Date endDate;
 
+    @ManyToOne()
+    @JoinColumn(
+        name = "user_id",
+        referencedColumnName = "user_id",
+        nullable = false
+    )
+    private User user;
+
     public FinancialStatement() {
     }
 

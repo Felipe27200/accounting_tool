@@ -24,8 +24,12 @@ public class AccountCatalogueDTO
         return typeAccount;
     }
 
-    public void setEarning(Integer earning) {
-        typeAccount = earning;
+    public void setTypeAccount(Integer typeAccount) {
+        this.typeAccount = typeAccount;
+    }
+
+    public Integer getTypeAccount() {
+        return typeAccount;
     }
 
     public String getName() {
