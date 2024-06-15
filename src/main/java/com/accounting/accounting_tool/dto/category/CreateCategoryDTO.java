@@ -2,6 +2,7 @@ package com.accounting.accounting_tool.dto.category;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class CreateCategoryDTO
 {
@@ -12,6 +13,7 @@ public class CreateCategoryDTO
     * The validation with @NotBlank can not be applied to numbers.
     * */
     @Min(value = 1, message = "The account catalogue is required")
+    @NotNull(message = "The account catalogue is required")
     private Long accountCatalogueId;
     private Long parentCategory;
 
@@ -24,11 +26,11 @@ public class CreateCategoryDTO
         this.parentCategory = parentCategory;
     }
 
-    public @NotBlank(message = "The category name is required") String getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(@NotBlank(message = "The category name is required") String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
