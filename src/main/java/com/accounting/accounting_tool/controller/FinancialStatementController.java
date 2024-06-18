@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -33,26 +34,21 @@ public class FinancialStatementController
     @PostMapping("/save")
     public ResponseEntity<?> save (@Valid @RequestBody CreateFinancialStatementDTO financialStatementDTO)
     {
-        if (!dateFormatValidator.isValidDate(financialStatementDTO.getInitDate()))
-            throw new GeneralException("The init date format is not valid, it must be 'yyyy-MM-dd'");
-
-        String endDate = financialStatementDTO.getEndDate() != null ? financialStatementDTO.getEndDate() : "";
-        FinancialStatement financialStatement = new FinancialStatement();
-
-        if (!endDate.isEmpty() && !dateFormatValidator.isValidDate(endDate))
-            throw new GeneralException("The end date format is not valid, it must be 'yyyy-MM-dd'");
-
-        financialStatement.setEndDate( (endDate.isEmpty()) ? null : dateFormatValidator.converToDate(endDate));
-
-        financialStatement.setName(financialStatementDTO.getName());
-        financialStatement.setUser(new User(this.getAuthUsername()));
-        financialStatement.setInitDate(dateFormatValidator.converToDate(financialStatementDTO.getInitDate()));
-
+    	FinancialStatement financialStatement = this.convertToFinancialStatement(financialStatementDTO);
         FinancialStatement newFinancialStatement = this.financialStatementService.save(financialStatement);
 
         return new ResponseEntity<>(newFinancialStatement, HttpStatus.OK);
     }
-
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@Valid @RequestBody CreateFinancialStatementDTO createFinancialStatementDTO, @PathVariable Long id)
+    {
+    	FinancialStatement financialStatement = this.convertToFinancialStatement(createFinancialStatementDTO);
+    	FinancialStatement modifiedFinancial = this.financialStatementService.update(financialStatement);
+    	
+    	return new ResponseEntity<>(modifiedFinancial, HttpStatus.OK);
+    }
+    
     @GetMapping("/")
     public ResponseEntity<?> findAll()
     {
@@ -63,6 +59,71 @@ public class FinancialStatementController
         return new ResponseEntity<>(financialStatementList, HttpStatus.OK);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> findById(@PathVariable Long id)
+    {
+    	String username = this.getAuthUsername();
+    	
+    	FinancialStatement financialStatement = this.financialStatementService.findByIdAndUser(id, username);
+    	
+    	return new ResponseEntity<>(financialStatement, HttpStatus.OK);
+    }
+
+    @GetMapping("/{name}/name")
+    public ResponseEntity<?> findByName(@PathVariable String name)
+    {
+    	String username = this.getAuthUsername();
+    	
+    	FinancialStatement financialStatement = this.financialStatementService.findByNameAndUser(name, username);
+    	
+    	return new ResponseEntity<>(financialStatement, HttpStatus.OK);
+    }
+
+    @GetMapping("search/{name}")
+    public ResponseEntity<?> findByNameCoincidence(@PathVariable String name)
+    {
+    	String username = this.getAuthUsername();
+    	
+    	List<FinancialStatement> financialStatement = this.financialStatementService.findByNameCoincidenceAndUser(name, username);
+    	
+    	return new ResponseEntity<>(financialStatement, HttpStatus.OK);
+    }
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id)
+    {
+    	String message = this.financialStatementService.deleteById(id, getAuthUsername());
+    	
+    	return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+    
+    private FinancialStatement convertToFinancialStatement(CreateFinancialStatementDTO financialStatementDTO)
+    {
+    	if (!dateFormatValidator.isValidDate(financialStatementDTO.getInitDate()))
+            throw new GeneralException("The init date format is not valid, it must be 'yyyy-MM-dd'");
+
+        String endDate = financialStatementDTO.getEndDate() != null ? financialStatementDTO.getEndDate() : "";
+        FinancialStatement financialStatement = new FinancialStatement();
+
+        if (!endDate.isEmpty())
+        	this.validateEndDate(financialStatementDTO.getInitDate(), endDate);
+        
+        financialStatement.setEndDate( (endDate.isEmpty()) ? null : dateFormatValidator.converToDate(endDate));
+        financialStatement.setInitDate(dateFormatValidator.converToDate(financialStatementDTO.getInitDate()));
+        financialStatement.setName(financialStatementDTO.getName());
+        financialStatement.setUser(new User(this.getAuthUsername()));
+        
+        return financialStatement;
+    }
+
+    private FinancialStatement convertToFinancialStatement(CreateFinancialStatementDTO financialStatementDTO, Long id)
+    {
+    	FinancialStatement financialStatement = this.convertToFinancialStatement(financialStatementDTO);
+    	financialStatement.setId(id);
+    	
+    	return financialStatement;
+    }
+    
     private Authentication getAuthentication()
     {
         return SecurityContextHolder.getContext().getAuthentication();
@@ -73,5 +134,25 @@ public class FinancialStatementController
         Authentication authentication = this.getAuthentication();
 
         return authentication.getName();
+    }
+    
+    private void validateEndDate(String initDate, String endDate)
+    {
+    	if (!dateFormatValidator.isValidDate(endDate))
+    		throw new GeneralException("The end date format is not valid, it must be 'yyyy-MM-dd'");
+    	
+    	if (!this.isGreaterDate(initDate, endDate))
+    		throw new GeneralException("The end date is greater than the init date.");    	
+    }
+    
+    private boolean isGreaterDate(String strDate1, String strDate2)
+    {
+    	Date date1 = dateFormatValidator.converToDate(strDate1);
+    	Date date2 = dateFormatValidator.converToDate(strDate2);
+    	
+    	if (date1.after(date2))
+    		return false;
+    	else
+    		return true;
     }
 }

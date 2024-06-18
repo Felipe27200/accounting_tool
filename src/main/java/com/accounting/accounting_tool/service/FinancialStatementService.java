@@ -32,12 +32,29 @@ public class FinancialStatementService
 
         return this.financialStatementRepository.findByIdAndUser(financialStatement.getId(), user.getId());
     }
+    
+    @Transactional
+    public FinancialStatement update(FinancialStatement financialStatement)
+    {
+    	User user = this.userService.findByUsername(financialStatement.getUser().getUsername());
+    	FinancialStatement oldFinancial = this.findByIdAndUser(financialStatement.getId(), user.getUsername());
+    	
+    	if (oldFinancial == null)
+    		throw new NotFoundException("The financial statement with the id: " + financialStatement.getId() + " not found");
+    	
+    	financialStatement.setUser(user);
+    	
+    	FinancialStatement result = this.financialStatementRepository.save(financialStatement);
+    	
+    	return this.findByIdAndUser(result.getId(), user.getUsername());
+    	
+    }
 
     public List<FinancialStatement> findAllByUser(String username)
     {
         User user = this.userService.findByUsername(username);
 
-        return this.financialStatementRepository.findByUsername(username);
+        return this.financialStatementRepository.findByUsername(user.getUsername());
     }
 
     public FinancialStatement findByIdAndUser(Long id, String username)
@@ -68,5 +85,20 @@ public class FinancialStatementService
 
         return this.financialStatementRepository
                 .findByNameCoincidenceAndUser(name, user.getId());
+    }
+    
+    @Transactional
+    public String deleteById(Long id, String username)
+    {
+    	User user = this.userService.findByUsername(username);
+    	
+    	FinancialStatement financialStatement = this.findByIdAndUser(id, user.getUsername());
+    	
+    	if (financialStatement == null)
+            throw new NotFoundException("The financial statement with the de id: " + id + " not found.");
+    	
+    	this.financialStatementRepository.deleteById(id);
+    	
+    	return "The financial statement with the id: " + id + " was deleted successfully";
     }
 }
