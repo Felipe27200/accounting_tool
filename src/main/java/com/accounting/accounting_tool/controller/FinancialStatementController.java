@@ -44,6 +44,8 @@ public class FinancialStatementController
     public ResponseEntity<?> update(@Valid @RequestBody CreateFinancialStatementDTO createFinancialStatementDTO, @PathVariable Long id)
     {
     	FinancialStatement financialStatement = this.convertToFinancialStatement(createFinancialStatementDTO);
+        financialStatement.setId(id);
+
     	FinancialStatement modifiedFinancial = this.financialStatementService.update(financialStatement);
     	
     	return new ResponseEntity<>(modifiedFinancial, HttpStatus.OK);
@@ -74,7 +76,7 @@ public class FinancialStatementController
     {
     	String username = this.getAuthUsername();
     	
-    	FinancialStatement financialStatement = this.financialStatementService.findByNameAndUser(name, username);
+    	List<FinancialStatement> financialStatement = this.financialStatementService.findByNameAndUser(name, username);
     	
     	return new ResponseEntity<>(financialStatement, HttpStatus.OK);
     }

@@ -14,7 +14,7 @@ public interface FinancialStatementRepository extends JpaRepository<FinancialSta
     @Query(value = "SELECT f FROM FinancialStatement f JOIN FETCH f.user u WHERE f.id = :id AND u.id = :id_user")
     public FinancialStatement findByIdAndUser(@Param("id") Long id, @Param("id_user") Long id_user);
     @Query(value = "SELECT f FROM FinancialStatement f JOIN FETCH f.user u WHERE f.name = :name AND u.id = :id_user")
-    public FinancialStatement findByNameAndUser(@Param("name") String name, @Param("id_user") Long id_user);
+    public List<FinancialStatement> findByNameAndUser(@Param("name") String name, @Param("id_user") Long id_user);
     @Query(value = "SELECT f FROM FinancialStatement f JOIN FETCH f.user u WHERE f.name LIKE %:name% AND u.id = :id_user")
     public List<FinancialStatement> findByNameCoincidenceAndUser(@Param("name") String name, @Param("id_user") Long id_user);
 }

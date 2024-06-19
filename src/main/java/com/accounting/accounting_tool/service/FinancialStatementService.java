@@ -37,11 +37,8 @@ public class FinancialStatementService
     public FinancialStatement update(FinancialStatement financialStatement)
     {
     	User user = this.userService.findByUsername(financialStatement.getUser().getUsername());
-    	FinancialStatement oldFinancial = this.findByIdAndUser(financialStatement.getId(), user.getUsername());
-    	
-    	if (oldFinancial == null)
-    		throw new NotFoundException("The financial statement with the id: " + financialStatement.getId() + " not found");
-    	
+    	this.findByIdAndUser(financialStatement.getId(), user.getUsername());
+
     	financialStatement.setUser(user);
     	
     	FinancialStatement result = this.financialStatementRepository.save(financialStatement);
@@ -68,10 +65,10 @@ public class FinancialStatementService
         return financialStatement;
     }
 
-    public FinancialStatement findByNameAndUser(String name, String username)
+    public List<FinancialStatement> findByNameAndUser(String name, String username)
     {
         User user = this.userService.findByUsername(username);
-        FinancialStatement financialStatement = this.financialStatementRepository.findByNameAndUser(name, user.getId());
+        List<FinancialStatement> financialStatement = this.financialStatementRepository.findByNameAndUser(name, user.getId());
 
         if (financialStatement == null)
             throw new NotFoundException("The financial statement with the de id: " + name + " not found.");
