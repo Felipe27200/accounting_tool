@@ -48,6 +48,7 @@ public class CategoryService {
         return this.categoryRepository.save(newCategory);
     }
 
+    @Transactional
     public Category update (Category categoryToUpdate)
     {
         User authenticatedUser = this.userService.findByUsername(categoryToUpdate.getUser().getUsername());
@@ -113,6 +114,7 @@ public class CategoryService {
         return this.categoryRepository.findByUserId(user.getId());
     }
 
+    @Transactional
     public String deleteById(Long categoryId, String username)
     {
         Category category = this.findById(categoryId, username);

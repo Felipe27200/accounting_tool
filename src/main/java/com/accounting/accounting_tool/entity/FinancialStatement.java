@@ -6,8 +6,7 @@ import java.util.Date;
 
 @Entity
 @Table(
-    name = "financial_statements",
-    uniqueConstraints = @UniqueConstraint(name = "statement_name", columnNames = "name")
+    name = "financial_statements"
 )
 public class FinancialStatement
 {
@@ -45,6 +44,14 @@ public class FinancialStatement
         this.endDate = endDate;
     }
 
+    public FinancialStatement(Long id, String name, Date initDate, Date endDate, User user) {
+        this.id = id;
+        this.name = name;
+        this.initDate = initDate;
+        this.endDate = endDate;
+        this.user = user;
+    }
+
     public Long getId() {
         return id;
     }
@@ -75,5 +82,13 @@ public class FinancialStatement
 
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

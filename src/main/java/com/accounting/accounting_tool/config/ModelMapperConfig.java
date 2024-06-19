@@ -1,4 +1,4 @@
-package com.accounting.accounting_tool.config.mapper;
+package com.accounting.accounting_tool.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
