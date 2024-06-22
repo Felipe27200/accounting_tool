@@ -56,4 +56,14 @@ public class DateFormatValidator
     {
         return this.converToDate(dateStr, BASIC_FORMAT);
     }
+
+    public boolean isDateInRange(Date dateToCheck, Date dateFrom, Date dateTo)
+    {
+        return isDateInRange(dateToCheck, dateFrom, dateTo);
+    }
+
+    public boolean isGreaterDate(Date dateTocheck, Date dateFrom)
+    {
+        return dateFrom.compareTo(dateTocheck) < 0;
+    }
 }

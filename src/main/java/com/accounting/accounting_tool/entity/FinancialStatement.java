@@ -37,6 +37,10 @@ public class FinancialStatement
     public FinancialStatement() {
     }
 
+    public FinancialStatement(Long id) {
+        this.id = id;
+    }
+
     public FinancialStatement(Long id, String name, Date initDate, Date endDate) {
         this.id = id;
         this.name = name;

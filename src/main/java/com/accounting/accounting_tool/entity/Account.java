@@ -26,7 +26,7 @@ public class Account
     @Column(name = "is_recurring", nullable = true)
     private boolean isRecurring;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(
         name = "category_id",
         referencedColumnName = "category_id",
@@ -34,7 +34,7 @@ public class Account
     )
     private Category category;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(
         name = "financial_statement_id",
         referencedColumnName = "financial_statement_id",
