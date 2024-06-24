@@ -1,6 +1,7 @@
 package com.accounting.accounting_tool.service;
 
 import com.accounting.accounting_tool.common.DateFormatValidator;
+import com.accounting.accounting_tool.dto.account.SelectAccountDTO;
 import com.accounting.accounting_tool.entity.Account;
 import com.accounting.accounting_tool.entity.Category;
 import com.accounting.accounting_tool.entity.FinancialStatement;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.io.NotActiveException;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class AccountService
@@ -70,14 +72,23 @@ public class AccountService
         return this.accountRepository.save(account);
     }
 
-    public Account findByIdAndUser(Long id, String username)
+    public SelectAccountDTO findByIdAndUser(Long id, String username)
     {
         User user = this.userService.findByUsername(username);
-        Account account = this.accountRepository.findAccountByIdAndUser(id, user.getId());
+        SelectAccountDTO account = this.accountRepository.findAccountByIdAndUser(id, user.getId());
 
         if (account == null)
             throw new NotFoundException("The account with the id: " + id + " was not found.");
 
         return account;
+    }
+
+    public List<SelectAccountDTO> findAllByUser(String username)
+    {
+        User user = this.userService.findByUsername(username);
+        List<SelectAccountDTO> accounts = this.accountRepository.findAllByUser(user.getId());
+
+        return accounts;
+
     }
 }

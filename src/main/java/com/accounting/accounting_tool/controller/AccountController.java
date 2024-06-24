@@ -56,9 +56,15 @@ public class AccountController
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Account> getById(@PathVariable Long id)
+    public ResponseEntity<?> getById(@PathVariable Long id)
     {
         return new ResponseEntity<>(this.accountService.findByIdAndUser(id, getAuthUsername()), HttpStatus.OK);
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<?> getAllByUser()
+    {
+        return new ResponseEntity<>(this.accountService.findAllByUser(getAuthUsername()), HttpStatus.OK);
     }
 
     private Authentication getAuthentication()
