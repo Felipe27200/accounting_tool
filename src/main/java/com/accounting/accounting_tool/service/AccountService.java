@@ -13,8 +13,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.NotActiveException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -45,9 +45,7 @@ public class AccountService
     @Transactional
     public Account save(Account account, String username)
     {
-        BigDecimal zero = new BigDecimal(0);
         User user = this.userService.findByUsername(username);
-        Category category = this.categoryService.findById(account.getCategory().getId(), user.getUsername());
         FinancialStatement financialStatement =
             this.financialStatementService
                 .findByIdAndUser(
@@ -55,21 +53,34 @@ public class AccountService
                     user.getUsername()
                 );
 
-        if (financialStatement.getEndDate() != null
-            && !dateFormat.isDateInRange(account.getDate(), financialStatement.getInitDate(), financialStatement.getEndDate()))
-        {
-            throw new GeneralException("The date is outside of the range of the financial statement");
-        }
-        else if (!dateFormat.isGreaterDate(account.getDate(), financialStatement.getInitDate()))
-            throw new GeneralException("The date is outside of the range of the financial statement");
+        this.validateAccount(financialStatement, account);
 
-        if (account.getAmount().compareTo(zero) < 0)
-            throw new GeneralException("The amount for the account can not bet less than zero.");
-
-        account.setCategory(category);
+        account.setCategory(this.getCategory(account, user));
         account.setFinancialStatement(financialStatement);
 
         return this.accountRepository.save(account);
+    }
+
+    @Transactional
+    public SelectAccountDTO update(Account account, String username)
+    {
+        User user = userService.findByUsername(username);
+        FinancialStatement financialStatement =
+                this.financialStatementService
+                        .findByIdAndUser(
+                                account.getFinancialStatement().getId(),
+                                user.getUsername()
+                        );
+
+        this.findByIdAndUser(account.getId(), user.getUsername());
+        this.validateAccount(financialStatement, account);
+
+        account.setCategory(this.getCategory(account, user));
+        account.setFinancialStatement(financialStatement);
+
+        Account accountUpdated = this.accountRepository.save(account);
+
+        return this.accountRepository.findAccountById(accountUpdated.getId());
     }
 
     public SelectAccountDTO findByIdAndUser(Long id, String username)
@@ -83,12 +94,72 @@ public class AccountService
         return account;
     }
 
+    public List<SelectAccountDTO> findByDateAndUser(Date date, String username)
+    {
+        User user = this.userService.findByUsername(username);
+        List<SelectAccountDTO> account = this.accountRepository.findByDateAndUser(date, user.getId());
+
+        if (account == null || account.size() <= 0)
+        {
+            SimpleDateFormat formatter = (new SimpleDateFormat("yyyy-MM-dd"));
+            String format = formatter.format(date);
+
+            throw new NotFoundException("Accounts with date: " + format + " were not found.");
+        }
+
+        return account;
+    }
+
+    public List<SelectAccountDTO> findByDateRangeAndUser(String startDate, String endDate, String username)
+    {
+        User user = this.userService.findByUsername(username);
+        List<SelectAccountDTO> accounts = this.accountRepository.findByDatRageAndUser(startDate, endDate, user.getId());
+
+        return accounts;
+    }
+
     public List<SelectAccountDTO> findAllByUser(String username)
     {
         User user = this.userService.findByUsername(username);
         List<SelectAccountDTO> accounts = this.accountRepository.findAllByUser(user.getId());
 
         return accounts;
+    }
 
+    @Transactional
+    public String deleteById(Long id,String username)
+    {
+        SelectAccountDTO accountDto = this.findByIdAndUser(id, username);
+
+        this.accountRepository.deleteById(accountDto.getId());
+
+        return "Account with id: " + id + " was deleted";
+    }
+
+    private void validateAccount(FinancialStatement financialStatement, Account account)
+    {
+        if (financialStatement.getEndDate() != null
+                && !dateFormat.isDateInRange(account.getDate(), financialStatement.getInitDate(), financialStatement.getEndDate()))
+        {
+            throw new GeneralException("The date is outside of the range of the financial statement");
+        }
+        else if (!dateFormat.isGreaterDate(account.getDate(), financialStatement.getInitDate()))
+            throw new GeneralException("The date is outside of the range of the financial statement");
+
+        this.isAmountValid(account.getAmount());
+    }
+
+    private void isAmountValid(BigDecimal amount)
+    {
+        BigDecimal zero = new BigDecimal(0);
+
+        if (amount.compareTo(zero) < 0)
+            throw new GeneralException("The amount for the account can not bet less than zero.");
+
+    }
+
+    private Category getCategory(Account account, User user)
+    {
+        return this.categoryService.findById(account.getCategory().getId(), user.getUsername());
     }
 }
