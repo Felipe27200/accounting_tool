@@ -9,7 +9,7 @@ public class LoginDTO
     private String username;
 
     @NotBlank(message = "The password is required")
-    @Size(min = 8, message = "The password have to have minimum 8 characters")
+    @Size(min = 8, message = "The password must have minimum 8 characters")
     private String password;
 
     public LoginDTO() {
