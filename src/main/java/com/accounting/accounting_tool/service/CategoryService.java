@@ -40,7 +40,7 @@ public class CategoryService {
         if (checkCategory != null && compareValues(checkCategory.getUser().getId(), user.getId()))
             throw new DuplicateRecordException("You have already created the category: '" + newCategory.getName() + "'.");
 
-        this.checkParentCategoryById(newCategory, user.getUsername());
+        this.checkParentCategoryById(newCategory, user.getUsername(), accountCatalogue);
 
         newCategory.setUser(user);
         newCategory.setAccountCatalogue(accountCatalogue);
@@ -58,7 +58,7 @@ public class CategoryService {
         if (!compareValues(oldCategory.getUser().getId(), authenticatedUser.getId()))
             throw new GeneralException("The category does not belong to the user");
 
-        this.checkParentCategoryById(categoryToUpdate, authenticatedUser.getUsername());
+        this.checkParentCategoryById(categoryToUpdate, authenticatedUser.getUsername(), accountCatalogue);
         this.isCategoryAlreadyCreated(categoryToUpdate.getName(), categoryToUpdate, authenticatedUser.getId());
 
         categoryToUpdate.setUser(authenticatedUser);
@@ -121,16 +121,21 @@ public class CategoryService {
 
         this.categoryRepository.deleteById(category.getId());
 
-        return String.format("The category '%s' with the id '%d' was deleted successfully",
+        return String.format("The category %s with the id %d was deleted successfully",
             category.getName(), categoryId);
     }
 
-    private void checkParentCategoryById(Category category, String username)
+    private void checkParentCategoryById(Category category, String username, AccountCatalogue accountCatalogue)
     {
         try
         {
-            if (category.getParentCategory() != null)
-                this.findById(category.getParentCategory(), username);
+            if (category.getParentCategory() == null)
+                return;
+
+            Category parentCategory = this.findById(category.getParentCategory(), username);
+
+            if (!parentCategory.getAccountCatalogue().getId().equals(accountCatalogue.getId()))
+                throw new GeneralException("The type of category is not the same as the parent category");
         }
         catch(NotFoundException ex)
         {

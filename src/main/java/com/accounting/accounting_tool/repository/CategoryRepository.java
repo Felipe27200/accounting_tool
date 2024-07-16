@@ -32,7 +32,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long>
     @Query(BASE_SELECT_QUERY + " WHERE c.id = :categoryId AND u.id = :userId")
     Category findByIdWithAssociations(@Param("categoryId") Long categoryId, @Param("userId") Long userId);
 
-    @Query(BASE_SELECT_QUERY + " WHERE u.id = :userId")
+    @Query(BASE_SELECT_QUERY + " WHERE u.id = :userId ORDER BY c.name")
     List<Category> findAllWithAssociations(@Param("userId") Long userId);
 
     @Query(BASE_SELECT_QUERY + " WHERE c.name = :name AND u.id = :userId")
