@@ -3,6 +3,7 @@ package com.accounting.accounting_tool.controller;
 import com.accounting.accounting_tool.dto.category.CreateCategoryDTO;
 import com.accounting.accounting_tool.entity.AccountCatalogue;
 import com.accounting.accounting_tool.entity.User;
+import com.accounting.accounting_tool.response.BasicResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -90,7 +91,9 @@ public class CategoryController
 	{
 		String message = this.categoryService.deleteById(id, getAuthUsername());
 
-		return new ResponseEntity<>(message, HttpStatus.OK);
+		BasicResponse<String> response = new BasicResponse<>(message, "successful");
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	private Category setCategoryData(CreateCategoryDTO categoryDTO)
@@ -98,7 +101,7 @@ public class CategoryController
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		Category category = new Category();
 
-		category.setName(categoryDTO.getName());
+		category.setName(categoryDTO.getName().trim());
 		category.setAccountCatalogue(new AccountCatalogue(categoryDTO.getAccountCatalogueId()));
 		category.setUser(new User(authentication.getName()));
 
