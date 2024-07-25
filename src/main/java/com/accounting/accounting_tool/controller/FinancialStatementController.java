@@ -5,6 +5,7 @@ import com.accounting.accounting_tool.dto.financial_statement.CreateFinancialSta
 import com.accounting.accounting_tool.entity.FinancialStatement;
 import com.accounting.accounting_tool.entity.User;
 import com.accounting.accounting_tool.error_handling.exception.GeneralException;
+import com.accounting.accounting_tool.response.BasicResponse;
 import com.accounting.accounting_tool.service.FinancialStatementService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,8 +96,9 @@ public class FinancialStatementController
     public ResponseEntity<?> delete(@PathVariable Long id)
     {
     	String message = this.financialStatementService.deleteById(id, getAuthUsername());
-    	
-    	return new ResponseEntity<>(message, HttpStatus.OK);
+        BasicResponse<String> response = new BasicResponse<>(message, "successful");
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
     private FinancialStatement convertToFinancialStatement(CreateFinancialStatementDTO financialStatementDTO)

@@ -7,6 +7,7 @@ import com.accounting.accounting_tool.entity.Account;
 import com.accounting.accounting_tool.entity.Category;
 import com.accounting.accounting_tool.entity.FinancialStatement;
 import com.accounting.accounting_tool.error_handling.exception.GeneralException;
+import com.accounting.accounting_tool.response.BasicResponse;
 import com.accounting.accounting_tool.service.AccountService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,9 +57,12 @@ public class AccountController
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteById(@PathVariable Long id)
+    public ResponseEntity<BasicResponse> deleteById(@PathVariable Long id)
     {
-        return new ResponseEntity<>(this.accountService.deleteById(id, getAuthUsername()), HttpStatus.OK);
+        String message = this.accountService.deleteById(id, getAuthUsername());
+        BasicResponse<String> response = new BasicResponse<>(message, "successful");
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

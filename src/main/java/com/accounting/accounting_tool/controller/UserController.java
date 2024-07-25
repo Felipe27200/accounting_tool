@@ -4,6 +4,7 @@ import com.accounting.accounting_tool.dto.login.ChangePasswordDTO;
 import com.accounting.accounting_tool.dto.user.GetUserDTO;
 import com.accounting.accounting_tool.dto.user.UpdateUserDTO;
 import com.accounting.accounting_tool.entity.User;
+import com.accounting.accounting_tool.response.BasicResponse;
 import com.accounting.accounting_tool.service.UserService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -111,8 +112,9 @@ public class UserController
     public ResponseEntity<?> deleteById(@PathVariable Long id)
     {
         String message = this.userService.deleteUser(id);
+        BasicResponse<String> response = new BasicResponse<>(message, "successful");
 
-        return new ResponseEntity<>(message, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     private List<GetUserDTO> convertListUserToGEtDTO(List<User> userList)

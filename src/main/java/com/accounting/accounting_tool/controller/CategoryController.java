@@ -3,6 +3,8 @@ package com.accounting.accounting_tool.controller;
 import com.accounting.accounting_tool.dto.category.CreateCategoryDTO;
 import com.accounting.accounting_tool.entity.AccountCatalogue;
 import com.accounting.accounting_tool.entity.User;
+import com.accounting.accounting_tool.response.BasicResponse;
+import jakarta.persistence.Basic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -89,8 +91,9 @@ public class CategoryController
 	public ResponseEntity<?> deleteById (@PathVariable Long id)
 	{
 		String message = this.categoryService.deleteById(id, getAuthUsername());
+		BasicResponse<String> response = new BasicResponse<>(message, "successful");
 
-		return new ResponseEntity<>(message, HttpStatus.OK);
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	private Category setCategoryData(CreateCategoryDTO categoryDTO)
