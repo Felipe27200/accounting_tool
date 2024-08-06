@@ -91,7 +91,19 @@ public class FinancialStatementController
     	
     	return new ResponseEntity<>(financialStatement, HttpStatus.OK);
     }
-    
+
+    @GetMapping("search/{date}/date")
+    public ResponseEntity<?> findAllByDate(@PathVariable String date)
+    {
+        this.isValidDate(date, "date");
+
+    	String username = this.getAuthUsername();
+        List<FinancialStatement> statementList = this.financialStatementService
+                .findAllByDate(this.dateFormatValidator.converToDate(date), username);
+
+    	return new ResponseEntity<>(statementList, HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id)
     {
@@ -103,8 +115,7 @@ public class FinancialStatementController
     
     private FinancialStatement convertToFinancialStatement(CreateFinancialStatementDTO financialStatementDTO)
     {
-    	if (!dateFormatValidator.isValidDate(financialStatementDTO.getInitDate()))
-            throw new GeneralException("The init date format is not valid, it must be 'yyyy-MM-dd'");
+        this.isValidDate(financialStatementDTO.getInitDate(), "init date");
 
         String endDate = financialStatementDTO.getEndDate() != null ? financialStatementDTO.getEndDate() : "";
         FinancialStatement financialStatement = new FinancialStatement();
@@ -147,6 +158,12 @@ public class FinancialStatementController
     	
     	if (!this.isGreaterDate(initDate, endDate))
     		throw new GeneralException("The end date is greater than the init date.");    	
+    }
+
+    private void isValidDate(String date, String message)
+    {
+        if (!dateFormatValidator.isValidDate(date))
+            throw new GeneralException("The " + message + " format is not valid, it must be 'yyyy-MM-dd'");
     }
     
     private boolean isGreaterDate(String strDate1, String strDate2)

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -19,4 +20,6 @@ public interface FinancialStatementRepository extends JpaRepository<FinancialSta
     public List<FinancialStatement> findByNameAndUser(@Param("name") String name, @Param("id_user") Long id_user);
     @Query(value = "SELECT f FROM FinancialStatement f JOIN FETCH f.user u WHERE f.name LIKE %:name% AND u.id = :id_user")
     public List<FinancialStatement> findByNameCoincidenceAndUser(@Param("name") String name, @Param("id_user") Long id_user);
+    @Query(value = "SELECT f FROM FinancialStatement f JOIN FETCH f.user u WHERE f.initDate <= :date AND (f.endDate IS NULL OR f.endDate >= :date) AND u.id = :id_user")
+    public List<FinancialStatement> findAllByDate(@Param("date") Date date, @Param("id_user") Long id_user);
 }

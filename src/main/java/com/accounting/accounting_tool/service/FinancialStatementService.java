@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -82,6 +83,13 @@ public class FinancialStatementService
 
         return this.financialStatementRepository
                 .findByNameCoincidenceAndUser(name, user.getId());
+    }
+
+    public List<FinancialStatement> findAllByDate(Date date, String username)
+    {
+        User user = this.userService.findByUsername(username);
+
+        return this.financialStatementRepository.findAllByDate(date, user.getId());
     }
     
     @Transactional

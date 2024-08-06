@@ -16,9 +16,9 @@ public interface CategoryRepository extends JpaRepository<Category, Long>
      * | GET THE CHILDREN DATA AT THE SAME TIME |
      * +----------------------------------------+
      *
-     * The JOIN SELECT get the children data at the same time
+     * The JOIN FETCH get the children data at the same time
      * when JPA is making the query in only once, in the other hand,
-     * only JOIN or INNER JOIN will get first the parent data and then
+     * only JOIN or INNER JOIN will get first the parent data then
      * it'll do another query for the children's data.
      *
      * This is more useful for collections.
@@ -32,7 +32,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long>
     @Query(BASE_SELECT_QUERY + " WHERE c.id = :categoryId AND u.id = :userId")
     Category findByIdWithAssociations(@Param("categoryId") Long categoryId, @Param("userId") Long userId);
 
-    @Query(BASE_SELECT_QUERY + " WHERE u.id = :userId")
+    @Query(BASE_SELECT_QUERY + " WHERE u.id = :userId" + " ORDER BY c.name")
     List<Category> findAllWithAssociations(@Param("userId") Long userId);
 
     @Query(BASE_SELECT_QUERY + " WHERE c.name = :name AND u.id = :userId")
