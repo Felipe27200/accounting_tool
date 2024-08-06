@@ -61,7 +61,7 @@ public class FinancialStatementService
         FinancialStatement financialStatement = this.financialStatementRepository.findByIdAndUser(id, user.getId());
 
         if (financialStatement == null)
-            throw new NotFoundException("The financial statement with the de id: " + id + " not found.");
+            throw new NotFoundException("The financial statement with the id: " + id + " was not found.");
 
         return financialStatement;
     }
@@ -72,7 +72,7 @@ public class FinancialStatementService
         List<FinancialStatement> financialStatement = this.financialStatementRepository.findByNameAndUser(name, user.getId());
 
         if (financialStatement == null)
-            throw new NotFoundException("The financial statement with the de id: " + name + " not found.");
+            throw new NotFoundException("The financial statement with the id: " + name + " was not found.");
 
         return financialStatement;
     }
@@ -100,7 +100,7 @@ public class FinancialStatementService
     	FinancialStatement financialStatement = this.findByIdAndUser(id, user.getUsername());
     	
     	if (financialStatement == null)
-            throw new NotFoundException("The financial statement with the de id: " + id + " not found.");
+            throw new NotFoundException("The financial statement with the id: " + id + " was not found.");
     	
     	this.financialStatementRepository.deleteById(id);
     	
