@@ -16,10 +16,24 @@ public class GetUserDTO
     public GetUserDTO() {
     }
 
-    public GetUserDTO(Long id, String name, String userName, Role role) {
-        this.id = id;
-        this.name = name;
+    public GetUserDTO(Long id, String name, String userName) {
         this.userName = userName;
+        this.name = name;
+        this.id = id;
+    }
+
+    public GetUserDTO(Long id, String name, String userName, Long role)
+    {
+        this(id, userName, name);
+
+        Role roleEntity = new Role();
+        roleEntity.setId(role);
+
+        this.role = roleEntity;
+    }
+
+    public GetUserDTO(Long id, String name, String userName, Role role) {
+        this(id, name, userName);
         this.role = role;
     }
 

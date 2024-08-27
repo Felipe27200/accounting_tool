@@ -12,6 +12,12 @@ public class CategoryForAccountDTO
     public CategoryForAccountDTO() {
     }
 
+    public CategoryForAccountDTO(Long id, Long parentCategory, String name) {
+        this.id = id;
+        this.parentCategory = parentCategory;
+        this.name = name;
+    }
+
     public CategoryForAccountDTO(Long id, Long parentCategory, String name, AccountCatalogue accountCatalogue)
     {
         this.id = id;
