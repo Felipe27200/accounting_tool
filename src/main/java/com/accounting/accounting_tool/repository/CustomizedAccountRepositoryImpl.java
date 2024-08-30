@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,32 +45,49 @@ public class CustomizedAccountRepositoryImpl implements CustomizedAccountReposit
     @Override
     public List<SelectAccountDTO> filterAccounts(FilterAccountDTO filterAccountDTO, String username)
     {
+    	ArrayList<String> parameters = new ArrayList<>();
+    	
         String conditions = "WHERE 1=1\n";
 
         if (filterAccountDTO.getCategoryId() != null && filterAccountDTO.getCategoryId() > 0)
-            conditions += "AND category_id = ? \n";
+        {
+        	conditions += "AND c.category_id = ? \n";
+        	parameters.add(filterAccountDTO.getCategoryId().toString());
+        }
+        
+        conditions += "AND u.username = ?\n";
+        parameters.add(username);
+        
+        System.out.println("\n\n---------------------------------------------------------------------\n");
+        System.out.println(parameters.size());
+        System.out.println(FILTER_ACCOUNT_QUERY + conditions);
 
         // This is the way to run a script
-        List<SelectAccountDTO> accounts = this.jdbcTemplate.query(FILTER_ACCOUNT_QUERY + conditions,
+        List<SelectAccountDTO> accounts = this.jdbcTemplate.query((FILTER_ACCOUNT_QUERY + conditions),
             (rs, rowNum) ->
-                new SelectAccountDTO(
+                new SelectAccountDTO
+                (
                     rs.getLong("account_id"),
                     rs.getBigDecimal("amount"),
                     rs.getDate("date"),
                     rs.getBoolean("is_recurring"),
-                    new CategoryForAccountDTO(
+                    new CategoryForAccountDTO
+                    (
                         rs.getLong("category_id"),
                         rs.getLong("parent_category"),
                         rs.getString("category_name")
                     ),
-                    new FinancialStatementForAccountDTO(
+                    new FinancialStatementForAccountDTO
+                    (
                         rs.getLong("statement_id"),
                         rs.getString("statement_name"),
                         rs.getDate("init_date"),
                         rs.getDate("end_date")
                     )
-            )
+        		),
+            parameters
         );
-        return List.of();
+        
+        return accounts;
     }
 }

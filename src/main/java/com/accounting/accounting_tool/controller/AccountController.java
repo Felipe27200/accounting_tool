@@ -102,7 +102,7 @@ public class AccountController
         return new ResponseEntity<>(this.accountService.findAllByUser(getAuthUsername()), HttpStatus.OK);
     }
 
-    @GetMapping("/filter-account")
+    @PostMapping("/filter-account")
     public ResponseEntity<?> filterAccount(@RequestBody FilterAccountDTO filterAccountDTO)
     {
         List<SelectAccountDTO> accounts = this.accountService.filterAccount(filterAccountDTO, getAuthUsername());

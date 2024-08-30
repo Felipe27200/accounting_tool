@@ -90,7 +90,9 @@ public class AccountService
 
     public List<SelectAccountDTO> filterAccount(FilterAccountDTO filterAccountDTO, String username)
     {
-        return this.customizedAccountRepository.filterAccounts(filterAccountDTO, username);
+    	User user = this.userService.findByUsername(username);
+    	
+        return this.customizedAccountRepository.filterAccounts(filterAccountDTO, user.getUsername());
     }
 
     public SelectAccountDTO findByIdAndUser(Long id, String username)
