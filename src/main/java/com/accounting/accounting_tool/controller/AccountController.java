@@ -1,7 +1,9 @@
 package com.accounting.accounting_tool.controller;
 
 import com.accounting.accounting_tool.common.DateFormatValidator;
+import com.accounting.accounting_tool.config.ModelMapperConfig;
 import com.accounting.accounting_tool.dto.account.CreateAccountDTO;
+import com.accounting.accounting_tool.dto.account.FilterAccountDTO;
 import com.accounting.accounting_tool.dto.account.SelectAccountDTO;
 import com.accounting.accounting_tool.entity.Account;
 import com.accounting.accounting_tool.entity.Category;
@@ -27,14 +29,17 @@ public class AccountController
 {
     private final AccountService accountService;
     private final DateFormatValidator dateValidator;
+    private final ModelMapperConfig modelMapper;
 
     @Autowired
     public AccountController(
-            AccountService accountService,
-            DateFormatValidator dateValidator
+        AccountService accountService,
+        DateFormatValidator dateValidator,
+        ModelMapperConfig modelMapper
     ) {
         this.accountService = accountService;
         this.dateValidator = dateValidator;
+        this.modelMapper = modelMapper;
     }
 
     @PostMapping("/create")
@@ -95,6 +100,25 @@ public class AccountController
     public ResponseEntity<?> getAllByUser()
     {
         return new ResponseEntity<>(this.accountService.findAllByUser(getAuthUsername()), HttpStatus.OK);
+    }
+
+    @PostMapping("/filter-account")
+    public ResponseEntity<?> filterAccount(@RequestBody FilterAccountDTO filterAccountDTO)
+    {
+        if (filterAccountDTO.getInitDate() != null && !filterAccountDTO.getInitDate().isEmpty()
+                && !dateValidator.isValidDate(filterAccountDTO.getInitDate()))
+        {
+            throw new GeneralException("The start date has a not valid date format, it must be YYYY-mm-dd.");
+        }
+        if (filterAccountDTO.getEndDate() != null && !filterAccountDTO.getEndDate().isEmpty()
+                && !dateValidator.isValidDate(filterAccountDTO.getEndDate()))
+        {
+            throw new GeneralException("The end date has a not valid date format, it must be YYYY-mm-dd.");
+        }
+
+        List<SelectAccountDTO> accounts = this.accountService.filterAccount(filterAccountDTO, getAuthUsername());
+
+        return new ResponseEntity<>(accounts, HttpStatus.OK);
     }
 
     private Authentication getAuthentication()

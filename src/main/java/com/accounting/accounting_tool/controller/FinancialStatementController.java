@@ -104,6 +104,23 @@ public class FinancialStatementController
     	return new ResponseEntity<>(statementList, HttpStatus.OK);
     }
 
+    @GetMapping("search-range/{initDate}/to/{endDate}")
+    public ResponseEntity<?> findAllByDateRange(@PathVariable String initDate, @PathVariable String endDate)
+    {
+        this.isValidDate(initDate, "init date");
+        this.isValidDate(endDate, "end date");
+
+    	String username = this.getAuthUsername();
+        List<FinancialStatement> statementList =
+            this.financialStatementService
+                .findAllByDateRange(
+                    this.dateFormatValidator.converToDate(initDate),
+                    this.dateFormatValidator.converToDate(endDate),
+                    username);
+
+    	return new ResponseEntity<>(statementList, HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id)
     {

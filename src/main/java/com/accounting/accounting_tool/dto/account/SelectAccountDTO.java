@@ -21,6 +21,15 @@ public class SelectAccountDTO
     public SelectAccountDTO() {
     }
 
+    public SelectAccountDTO(Long id, BigDecimal amount, Date date, boolean isRecurring, CategoryForAccountDTO categoryDTO, FinancialStatementForAccountDTO financialStatement) {
+        this.id = id;
+        this.amount = amount;
+        this.date = date;
+        this.isRecurring = isRecurring;
+        this.categoryDTO = categoryDTO;
+        this.financialStatement = financialStatement;
+    }
+
     public SelectAccountDTO(Long id, BigDecimal amount, Date date, boolean isRecurring, CategoryForAccountDTO categoryDTO, FinancialStatementForAccountDTO financialStatement, GetUserDTO user) {
         this.id = id;
         this.amount = amount;

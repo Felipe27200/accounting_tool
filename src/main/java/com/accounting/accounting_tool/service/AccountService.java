@@ -1,6 +1,7 @@
 package com.accounting.accounting_tool.service;
 
 import com.accounting.accounting_tool.common.DateFormatValidator;
+import com.accounting.accounting_tool.dto.account.FilterAccountDTO;
 import com.accounting.accounting_tool.dto.account.SelectAccountDTO;
 import com.accounting.accounting_tool.entity.Account;
 import com.accounting.accounting_tool.entity.Category;
@@ -9,6 +10,7 @@ import com.accounting.accounting_tool.entity.User;
 import com.accounting.accounting_tool.error_handling.exception.GeneralException;
 import com.accounting.accounting_tool.error_handling.exception.NotFoundException;
 import com.accounting.accounting_tool.repository.AccountRepository;
+import com.accounting.accounting_tool.repository.CustomizedAccountRepositoryImpl;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class AccountService
     private final CategoryService categoryService;
     private final UserService userService;
     private final DateFormatValidator dateFormat;
+    private final CustomizedAccountRepositoryImpl customizedAccountRepository;
 
     @Autowired
     public AccountService(
@@ -33,13 +36,15 @@ public class AccountService
         FinancialStatementService financialStatementService,
         CategoryService categoryService,
         UserService userService,
-        DateFormatValidator dateFormat
+        DateFormatValidator dateFormat,
+        CustomizedAccountRepositoryImpl customizedAccountRepository
     ) {
         this.accountRepository = accountRepository;
         this.financialStatementService = financialStatementService;
         this.categoryService = categoryService;
         this.userService = userService;
         this.dateFormat = dateFormat;
+        this.customizedAccountRepository = customizedAccountRepository;
     }
 
     @Transactional
@@ -81,6 +86,13 @@ public class AccountService
         Account accountUpdated = this.accountRepository.save(account);
 
         return this.accountRepository.findAccountById(accountUpdated.getId());
+    }
+
+    public List<SelectAccountDTO> filterAccount(FilterAccountDTO filterAccountDTO, String username)
+    {
+    	User user = this.userService.findByUsername(username);
+    	
+        return this.customizedAccountRepository.filterAccounts(filterAccountDTO, user.getUsername());
     }
 
     public SelectAccountDTO findByIdAndUser(Long id, String username)
@@ -143,8 +155,11 @@ public class AccountService
         {
             throw new GeneralException("The date is outside of the range of the financial statement");
         }
-        else if (!dateFormat.isGreaterDate(account.getDate(), financialStatement.getInitDate()))
+        else if (!dateFormat.isGreaterDate(account.getDate(), financialStatement.getInitDate())
+                    && !(account.getDate().compareTo(financialStatement.getInitDate()) >= 0))
+        {
             throw new GeneralException("The date is outside of the range of the financial statement");
+        }
 
         this.isAmountValid(account.getAmount());
     }

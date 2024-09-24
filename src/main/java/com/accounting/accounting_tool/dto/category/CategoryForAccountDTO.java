@@ -7,9 +7,16 @@ public class CategoryForAccountDTO
     private Long id;
     private Long parentCategory;
     private String name;
+    private Long typeAccount;
     private AccountCatalogue accountCatalogue;
 
     public CategoryForAccountDTO() {
+    }
+
+    public CategoryForAccountDTO(Long id, Long parentCategory, String name) {
+        this.id = id;
+        this.parentCategory = parentCategory;
+        this.name = name;
     }
 
     public CategoryForAccountDTO(Long id, Long parentCategory, String name, AccountCatalogue accountCatalogue)
@@ -18,6 +25,13 @@ public class CategoryForAccountDTO
         this.parentCategory = parentCategory;
         this.name = name;
         this.accountCatalogue = accountCatalogue;
+    }
+
+    public CategoryForAccountDTO(Long id, Long parentCategory, String name, Long typeAccount) {
+        this.id = id;
+        this.parentCategory = parentCategory;
+        this.name = name;
+        this.typeAccount = typeAccount;
     }
 
     public Long getId() {
@@ -51,4 +65,13 @@ public class CategoryForAccountDTO
     public void setAccountCatalogue(AccountCatalogue accountCatalogue) {
         this.accountCatalogue = accountCatalogue;
     }
+
+    public Long getTypeAccount() {
+        return typeAccount;
+    }
+
+    public void setTypeAccount(Long typeAccount) {
+        this.typeAccount = typeAccount;
+    }
+
 }

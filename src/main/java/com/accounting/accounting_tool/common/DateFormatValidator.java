@@ -59,11 +59,14 @@ public class DateFormatValidator
 
     public boolean isDateInRange(Date dateToCheck, Date dateFrom, Date dateTo)
     {
-        return isDateInRange(dateToCheck, dateFrom, dateTo);
+        if (dateFrom.compareTo(dateToCheck) < 0 || dateTo.compareTo(dateToCheck) > 0)
+            return false;
+
+        return true;
     }
 
-    public boolean isGreaterDate(Date dateTocheck, Date dateFrom)
+    public boolean isGreaterDate(Date dateToCheck, Date dateFrom)
     {
-        return dateFrom.compareTo(dateTocheck) < 0;
+        return dateFrom.compareTo(dateToCheck) < 0;
     }
 }
