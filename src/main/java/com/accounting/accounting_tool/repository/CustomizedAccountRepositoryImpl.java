@@ -52,12 +52,27 @@ public class CustomizedAccountRepositoryImpl implements CustomizedAccountReposit
     	
         String conditions = " WHERE 1 = 1";
 
+        if (filterAccountDTO.getInitDate() != null && !filterAccountDTO.getInitDate().isEmpty())
+        {
+        	conditions += " AND a.date >= ?";
+        	parameters.add(filterAccountDTO.getInitDate());
+        }
+        if (filterAccountDTO.getEndDate() != null && !filterAccountDTO.getEndDate().isEmpty())
+        {
+        	conditions += " AND a.date <= ?";
+        	parameters.add(filterAccountDTO.getEndDate());
+        }
+        if (filterAccountDTO.getStatementId() != null && filterAccountDTO.getStatementId() > 0)
+        {
+        	conditions += " AND f.financial_statement_id = ?";
+        	parameters.add(filterAccountDTO.getStatementId().toString());
+        }
         if (filterAccountDTO.getCategoryId() != null && filterAccountDTO.getCategoryId() > 0)
         {
         	conditions += " AND c.category_id = ?";
         	parameters.add(filterAccountDTO.getCategoryId().toString());
         }
-        
+
         conditions += " AND u.username = ?";
         parameters.add(username);
 

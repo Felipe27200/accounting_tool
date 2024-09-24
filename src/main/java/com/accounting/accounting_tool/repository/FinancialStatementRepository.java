@@ -22,4 +22,6 @@ public interface FinancialStatementRepository extends JpaRepository<FinancialSta
     public List<FinancialStatement> findByNameCoincidenceAndUser(@Param("name") String name, @Param("id_user") Long id_user);
     @Query(value = "SELECT f FROM FinancialStatement f JOIN FETCH f.user u WHERE f.initDate <= :date AND (f.endDate IS NULL OR f.endDate >= :date) AND u.id = :id_user")
     public List<FinancialStatement> findAllByDate(@Param("date") Date date, @Param("id_user") Long id_user);
+    @Query(value = "SELECT f FROM FinancialStatement f JOIN FETCH f.user u WHERE f.initDate >= :initDate AND f.endDate <= :endDate AND u.id = :id_user")
+    public List<FinancialStatement> findAllByDateRange(@Param("initDate") Date initDate, @Param("endDate") Date endDate, @Param("id_user") Long id_user);
 }

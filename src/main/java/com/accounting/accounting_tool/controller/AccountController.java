@@ -105,6 +105,17 @@ public class AccountController
     @PostMapping("/filter-account")
     public ResponseEntity<?> filterAccount(@RequestBody FilterAccountDTO filterAccountDTO)
     {
+        if (filterAccountDTO.getInitDate() != null && !filterAccountDTO.getInitDate().isEmpty()
+                && !dateValidator.isValidDate(filterAccountDTO.getInitDate()))
+        {
+            throw new GeneralException("The start date has a not valid date format, it must be YYYY-mm-dd.");
+        }
+        if (filterAccountDTO.getEndDate() != null && !filterAccountDTO.getEndDate().isEmpty()
+                && !dateValidator.isValidDate(filterAccountDTO.getEndDate()))
+        {
+            throw new GeneralException("The end date has a not valid date format, it must be YYYY-mm-dd.");
+        }
+
         List<SelectAccountDTO> accounts = this.accountService.filterAccount(filterAccountDTO, getAuthUsername());
 
         return new ResponseEntity<>(accounts, HttpStatus.OK);

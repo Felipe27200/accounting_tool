@@ -91,7 +91,14 @@ public class FinancialStatementService
 
         return this.financialStatementRepository.findAllByDate(date, user.getId());
     }
-    
+
+    public List<FinancialStatement> findAllByDateRange(Date initDate, Date endDate, String username)
+    {
+        User user = this.userService.findByUsername(username);
+
+        return this.financialStatementRepository.findAllByDateRange(initDate, endDate, user.getId());
+    }
+
     @Transactional
     public String deleteById(Long id, String username)
     {
