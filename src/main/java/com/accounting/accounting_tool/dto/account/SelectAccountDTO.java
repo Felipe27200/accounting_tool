@@ -13,6 +13,7 @@ public class SelectAccountDTO
     private BigDecimal amount;
     private Date date;
     private boolean isRecurring;
+    private BigDecimal total;
 
     private CategoryForAccountDTO categoryDTO;
     private FinancialStatementForAccountDTO financialStatement;
@@ -94,5 +95,13 @@ public class SelectAccountDTO
 
     public void setUser(GetUserDTO user) {
         this.user = user;
+    }
+
+    public BigDecimal getTotal() {
+        return total;
+    }
+
+    public void setTotal(BigDecimal total) {
+        this.total = total;
     }
 }

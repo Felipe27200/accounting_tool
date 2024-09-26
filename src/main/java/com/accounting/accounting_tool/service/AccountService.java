@@ -91,8 +91,11 @@ public class AccountService
     public List<SelectAccountDTO> filterAccount(FilterAccountDTO filterAccountDTO, String username)
     {
     	User user = this.userService.findByUsername(username);
-    	
-        return this.customizedAccountRepository.filterAccounts(filterAccountDTO, user.getUsername());
+
+        List<SelectAccountDTO> accounts = this.customizedAccountRepository.filterAccounts(filterAccountDTO, user.getUsername());
+        this.addUpAmounts(accounts);
+
+        return accounts;
     }
 
     public SelectAccountDTO findByIdAndUser(Long id, String username)
@@ -109,9 +112,9 @@ public class AccountService
     public List<SelectAccountDTO> findByDateAndUser(Date date, String username)
     {
         User user = this.userService.findByUsername(username);
-        List<SelectAccountDTO> account = this.accountRepository.findByDateAndUser(date, user.getId());
+        List<SelectAccountDTO> accounts = this.accountRepository.findByDateAndUser(date, user.getId());
 
-        if (account == null || account.size() <= 0)
+        if (accounts == null || accounts.size() <= 0)
         {
             SimpleDateFormat formatter = (new SimpleDateFormat("yyyy-MM-dd"));
             String format = formatter.format(date);
@@ -119,13 +122,17 @@ public class AccountService
             throw new NotFoundException("Accounts with date: " + format + " were not found.");
         }
 
-        return account;
+        this.addUpAmounts(accounts);
+
+        return accounts;
     }
 
     public List<SelectAccountDTO> findByDateRangeAndUser(String startDate, String endDate, String username)
     {
         User user = this.userService.findByUsername(username);
         List<SelectAccountDTO> accounts = this.accountRepository.findByDatRageAndUser(startDate, endDate, user.getId());
+
+        this.addUpAmounts(accounts);
 
         return accounts;
     }
@@ -134,6 +141,8 @@ public class AccountService
     {
         User user = this.userService.findByUsername(username);
         List<SelectAccountDTO> accounts = this.accountRepository.findAllByUser(user.getId());
+
+        this.addUpAmounts(accounts);
 
         return accounts;
     }
@@ -146,6 +155,32 @@ public class AccountService
         this.accountRepository.deleteById(accountDto.getId());
 
         return "Account with id: " + id + " was deleted";
+    }
+
+    private void addUpAmounts(List<SelectAccountDTO> accounts)
+    {
+        for (int index = 0; index < accounts.size(); index++)
+        {
+            Integer typeAccount = null;
+            SelectAccountDTO currentAccount = accounts.get(index);
+
+            if (currentAccount.getCategoryDTO().getAccountCatalogue() != null)
+                typeAccount = currentAccount.getCategoryDTO().getAccountCatalogue().typeAccount();
+            else
+                typeAccount = currentAccount.getCategoryDTO().getTypeAccount();
+
+            if (typeAccount == null)
+                throw  new GeneralException("The amount can not have an empty type account.");
+
+            BigDecimal previousTotal = (index > 0 && accounts.get(index - 1).getTotal() != null)
+                    ? accounts.get(index - 1).getTotal()
+                    : BigDecimal.ZERO;
+
+            if (typeAccount.equals(1))
+                currentAccount.setTotal(currentAccount.getAmount().add(previousTotal));
+            else
+                currentAccount.setTotal(previousTotal.subtract(currentAccount.getAmount()));
+        }
     }
 
     private void validateAccount(FinancialStatement financialStatement, Account account)
