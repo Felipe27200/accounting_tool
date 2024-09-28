@@ -7,7 +7,7 @@ public class CategoryForAccountDTO
     private Long id;
     private Long parentCategory;
     private String name;
-    private Long typeAccount;
+    private Integer typeAccount;
     private AccountCatalogue accountCatalogue;
 
     public CategoryForAccountDTO() {
@@ -27,7 +27,7 @@ public class CategoryForAccountDTO
         this.accountCatalogue = accountCatalogue;
     }
 
-    public CategoryForAccountDTO(Long id, Long parentCategory, String name, Long typeAccount) {
+    public CategoryForAccountDTO(Long id, Long parentCategory, String name, Integer typeAccount) {
         this.id = id;
         this.parentCategory = parentCategory;
         this.name = name;
@@ -66,11 +66,11 @@ public class CategoryForAccountDTO
         this.accountCatalogue = accountCatalogue;
     }
 
-    public Long getTypeAccount() {
+    public Integer getTypeAccount() {
         return typeAccount;
     }
 
-    public void setTypeAccount(Long typeAccount) {
+    public void setTypeAccount(Integer typeAccount) {
         this.typeAccount = typeAccount;
     }
 

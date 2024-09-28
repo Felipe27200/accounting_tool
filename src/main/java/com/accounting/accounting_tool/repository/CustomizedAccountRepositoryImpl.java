@@ -103,7 +103,7 @@ public class CustomizedAccountRepositoryImpl implements CustomizedAccountReposit
                 rs.getLong("category_id"),
                 rs.getLong("parent_category"),
                 rs.getString("category_name"),
-                rs.getLong("type_account")
+                rs.getInt("type_account")
             ),
             new FinancialStatementForAccountDTO (
                 rs.getLong("statement_id"),
