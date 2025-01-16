@@ -7,6 +7,7 @@ import com.accounting.accounting_tool.dto.financial_statement.FinancialStatement
 import com.accounting.accounting_tool.entity.AccountCatalogue;
 import com.accounting.accounting_tool.repository.custom.CustomizedAccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -23,16 +24,8 @@ import java.util.List;
 @Repository
 public class CustomizedAccountRepositoryImpl implements CustomizedAccountRepository
 {
-    private final String FILTER_ACCOUNT_QUERY = "SELECT"
-            + " a.account_id as account_id, a.amount as amount,  a.date as date, a.is_recurring as is_recurring,"
-            + " c.category_id as category_id, c.parent_category as parent_category, c.name as category_name, c.account_catalogue_id as catalogue_id,"
-            + " f.financial_statement_id as statement_id, f.name as statement_name, f.init_date as init_date, f.end_date as end_date,"
-            + " u.user_id as user_id, u.name as user_name, u.username as username, u.role_id as role_id, ac.type_account as type_account"
-            + " FROM accounting_system.accounts a"
-            + " INNER JOIN accounting_system.financial_statements f ON a.financial_statement_id = f.financial_statement_id"
-            + " INNER JOIN accounting_system.categories c ON c.category_id = a.category_id"
-            + " INNER JOIN accounting_system.accounts_catalogue ac ON ac.account_catalogue_id = c.account_catalogue_id"
-            + " INNER JOIN accounting_system.users u ON u.user_id = c.user_id";
+    @Value("${databaseName}")
+    private String databaseName;
 
     private JdbcTemplate jdbcTemplate;
 
@@ -81,7 +74,7 @@ public class CustomizedAccountRepositoryImpl implements CustomizedAccountReposit
             System.out.println(parameters.get(index));
         }
 
-        String query = FILTER_ACCOUNT_QUERY + conditions;
+        String query = this.filterQuery() + conditions;
 
         // This is the way to run a script
         List<SelectAccountDTO> accounts = this.jdbcTemplate.query(query,
@@ -114,5 +107,19 @@ public class CustomizedAccountRepositoryImpl implements CustomizedAccountReposit
         );
 
         return dto;
+    }
+
+    private String filterQuery()
+    {
+        return "SELECT"
+            + " a.account_id as account_id, a.amount as amount,  a.date as date, a.is_recurring as is_recurring,"
+            + " c.category_id as category_id, c.parent_category as parent_category, c.name as category_name, c.account_catalogue_id as catalogue_id,"
+            + " f.financial_statement_id as statement_id, f.name as statement_name, f.init_date as init_date, f.end_date as end_date,"
+            + " u.user_id as user_id, u.name as user_name, u.username as username, u.role_id as role_id, ac.type_account as type_account"
+            + " FROM " + this.databaseName + ".accounts a"
+            + " INNER JOIN " + this.databaseName + ".financial_statements f ON a.financial_statement_id = f.financial_statement_id"
+            + " INNER JOIN " + this.databaseName + ".categories c ON c.category_id = a.category_id"
+            + " INNER JOIN " + this.databaseName + ".accounts_catalogue ac ON ac.account_catalogue_id = c.account_catalogue_id"
+            + " INNER JOIN " + this.databaseName + ".users u ON u.user_id = c.user_id";
     }
 }
