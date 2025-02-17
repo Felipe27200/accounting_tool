@@ -105,6 +105,12 @@ public class AccountController
     @PostMapping("/filter-account")
     public ResponseEntity<?> filterAccount(@RequestBody FilterAccountDTO filterAccountDTO)
     {
+        if (filterAccountDTO.getInitDate() == null && filterAccountDTO.getEndDate() == null
+            && filterAccountDTO.getStatementId() == null && filterAccountDTO.getCategoryId() == null)
+        {
+            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+        }
+
         if (filterAccountDTO.getInitDate() != null && !filterAccountDTO.getInitDate().isEmpty()
                 && !dateValidator.isValidDate(filterAccountDTO.getInitDate()))
         {

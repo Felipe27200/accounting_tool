@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface FinancialStatementRepository extends JpaRepository<FinancialStatement, Long>
 {
-    @Query(value = "SELECT f FROM FinancialStatement f JOIN FETCH f.user u WHERE u.username = :username")
+    @Query(value = "SELECT f FROM FinancialStatement f JOIN FETCH f.user u WHERE u.username = :username ORDER BY f.name")
     public List<FinancialStatement> findByUsername(@Param("username") String username);
     @Query(value = "SELECT f FROM FinancialStatement f JOIN FETCH f.user u WHERE f.id = :id AND u.id = :id_user")
     public FinancialStatement findByIdAndUser(@Param("id") Long id, @Param("id_user") Long id_user);
