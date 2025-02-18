@@ -10,8 +10,8 @@ public class CreateAccountDTO
 {
     @NotBlank(message = "The date field is required.")
     private String date;
-    @Min(value = 1, message = "The account catalogue is required")
-    @NotNull(message = "The account catalogue is required")
+    @Min(value = 1, message = "The amount must be greater than zero")
+    @NotNull(message = "The amount is required")
     private BigDecimal amount;
     @NotNull(message = "The is-recurring field is required")
     private boolean isRecurring;
