@@ -106,7 +106,7 @@ public class AccountController
     public ResponseEntity<?> filterAccount(@RequestBody FilterAccountDTO filterAccountDTO)
     {
         if (filterAccountDTO.getInitDate() == null && filterAccountDTO.getEndDate() == null
-            && filterAccountDTO.getStatementId() == null && filterAccountDTO.getCategoryId() == null)
+            && filterAccountDTO.getStatementId() == null && filterAccountDTO.getCategoryList() == null)
         {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }

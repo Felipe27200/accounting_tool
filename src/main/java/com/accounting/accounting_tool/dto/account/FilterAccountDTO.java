@@ -1,22 +1,22 @@
 package com.accounting.accounting_tool.dto.account;
 
-import java.util.Date;
+import java.util.List;
 
 public class FilterAccountDTO
 {
     String initDate;
     String endDate;
     Long statementId;
-    Long categoryId;
+    List<Long> categoryList;
 
     public FilterAccountDTO() {
     }
 
-    public FilterAccountDTO(String initDate, String endDate, Long statementId, Long categoryId) {
+    public FilterAccountDTO(String initDate, String endDate, Long statementId, List<Long> categoryList) {
         this.initDate = initDate;
         this.endDate = endDate;
         this.statementId = statementId;
-        this.categoryId = categoryId;
+        this.categoryList = categoryList;
     }
 
     public String getInitDate() {
@@ -43,11 +43,11 @@ public class FilterAccountDTO
         this.statementId = statementId;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
+    public List<Long> getCategoryList() {
+        return categoryList;
     }
 
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
+    public void setCategoryList(List<Long> categoryList) {
+        this.categoryList = categoryList;
     }
 }
