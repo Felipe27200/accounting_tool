@@ -49,6 +49,9 @@ public interface AccountRepository extends JpaRepository<Account, Long>
     @Query(BASES_SELECT + "WHERE a.date = :date AND u.id = :userId")
     List<SelectAccountDTO> findByDateAndUser(@Param("date") Date date, @Param("userId") Long userId);
 
+    @Query(BASES_SELECT + "WHERE f.id = :statementId AND u.id = :userId ORDER BY a.date")
+    List<SelectAccountDTO> findByStatementId(@Param("statementId") Long statementId, @Param("userId") Long userId);
+
     @Query(BASES_SELECT + "WHERE (a.date BETWEEN :startDate AND :endDate) AND u.id = :userId")
     List<SelectAccountDTO> findByDatRageAndUser(
         @Param("startDate") String startDate,

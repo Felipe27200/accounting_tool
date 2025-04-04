@@ -43,7 +43,7 @@ public class AccountController
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createAccount(@Valid @RequestBody CreateAccountDTO accountDTO)
+    public ResponseEntity<Account> createAccount(@Valid @RequestBody CreateAccountDTO accountDTO)
     {
         this.validateAccount(accountDTO);
         Account account = this.mapDtoToEntity(accountDTO);
@@ -71,9 +71,15 @@ public class AccountController
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id)
+    public ResponseEntity<SelectAccountDTO> getById(@PathVariable Long id)
     {
         return new ResponseEntity<>(this.accountService.findByIdAndUser(id, getAuthUsername()), HttpStatus.OK);
+    }
+
+    @GetMapping("/search-statement-id/{statementId}")
+    public ResponseEntity<List<SelectAccountDTO>> findByStatementId(@PathVariable(name = "statementId") Long statementId)
+    {
+        return new ResponseEntity<>(this.accountService.findByStatementId(statementId, getAuthUsername()), HttpStatus.OK);
     }
 
     @GetMapping("/search-date/{dateStr}")
@@ -97,13 +103,13 @@ public class AccountController
     }
 
     @GetMapping("/")
-    public ResponseEntity<?> getAllByUser()
+    public ResponseEntity<List<SelectAccountDTO>> getAllByUser()
     {
         return new ResponseEntity<>(this.accountService.findAllByUser(getAuthUsername()), HttpStatus.OK);
     }
 
     @PostMapping("/filter-account")
-    public ResponseEntity<?> filterAccount(@RequestBody FilterAccountDTO filterAccountDTO)
+    public ResponseEntity<List<SelectAccountDTO>> filterAccount(@RequestBody FilterAccountDTO filterAccountDTO)
     {
         if (filterAccountDTO.getInitDate() == null && filterAccountDTO.getEndDate() == null
             && filterAccountDTO.getStatementId() == null && filterAccountDTO.getCategoryList() == null)
@@ -124,7 +130,10 @@ public class AccountController
 
         List<SelectAccountDTO> accounts = this.accountService.filterAccount(filterAccountDTO, getAuthUsername());
 
-        return new ResponseEntity<>(accounts, HttpStatus.OK);
+        if (!accounts.isEmpty())
+            return new ResponseEntity<>(accounts, HttpStatus.OK);
+        else
+            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 
     private Authentication getAuthentication()

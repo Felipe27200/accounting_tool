@@ -109,6 +109,19 @@ public class AccountService
         return account;
     }
 
+    public List<SelectAccountDTO> findByStatementId(Long statementId, String username)
+    {
+        User user = this.userService.findByUsername(username);
+        List<SelectAccountDTO> accounts = this.accountRepository.findByStatementId(statementId, user.getId());
+
+        if (accounts == null)
+            throw new NotFoundException("The account with the statement id: " + statementId + " was not found.");
+
+        this.addUpAmounts(accounts);
+
+        return accounts;
+    }
+
     public List<SelectAccountDTO> findByDateAndUser(Date date, String username)
     {
         User user = this.userService.findByUsername(username);
