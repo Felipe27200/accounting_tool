@@ -60,10 +60,20 @@ public class CustomizedAccountRepositoryImpl implements CustomizedAccountReposit
         	conditions += " AND f.financial_statement_id = ?";
         	parameters.add(filterAccountDTO.getStatementId().toString());
         }
-        if (filterAccountDTO.getCategoryId() != null && filterAccountDTO.getCategoryId() > 0)
+        if (filterAccountDTO.getCategoryList() != null && filterAccountDTO.getCategoryList().size() > 0)
         {
-        	conditions += " AND c.category_id = ?";
-        	parameters.add(filterAccountDTO.getCategoryId().toString());
+            String categoryCondition = " AND c.category_id IN (";
+            List<Long> categoryIds = filterAccountDTO.getCategoryList();
+
+            for (int index =  0; index < categoryIds.size(); index++)
+            {
+                if (index > 0)
+                    categoryCondition += ", ";
+
+                categoryCondition += "?";
+            	parameters.add(categoryIds.get(index).toString());
+            }
+            conditions += categoryCondition + ")";
         }
 
         conditions += " AND u.username = ?";
