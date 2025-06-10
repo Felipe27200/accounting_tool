@@ -31,4 +31,9 @@ public class BasicResponse <T>
     public void setMessage(String status) {
         this.status = status;
     }
+
+    public String getStatus()
+    {
+        return status;
+    }
 }
