@@ -1,9 +1,12 @@
 package com.accounting.accounting_tool.controller;
 
+import com.accounting.accounting_tool.dto.login.ChangePasswordAdminDTO;
 import com.accounting.accounting_tool.dto.login.ChangePasswordDTO;
 import com.accounting.accounting_tool.dto.user.GetUserDTO;
+import com.accounting.accounting_tool.dto.user.UpdateUserAdminDto;
 import com.accounting.accounting_tool.dto.user.UpdateUserDTO;
 import com.accounting.accounting_tool.entity.User;
+import com.accounting.accounting_tool.error_handling.exception.GeneralException;
 import com.accounting.accounting_tool.response.BasicResponse;
 import com.accounting.accounting_tool.service.UserService;
 import jakarta.validation.Valid;
@@ -54,8 +57,31 @@ public class UserController
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
+    @PutMapping("/update-user/{id}")
+    public ResponseEntity<GetUserDTO> updateUser (@Valid @RequestBody UpdateUserAdminDto updatedUser, @PathVariable("id") Long userId)
+    {
+        if (userId <= 0)
+            throw new GeneralException("The user id must be greater than 0");
+
+        User user = this.userService.findById(userId);
+
+        user.setName(updatedUser.getName());
+
+        if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty())
+        {
+            if (updatedUser.getPassword().length() < 8)
+                throw new GeneralException("The password must be at least 8 characters");
+
+            user.setPassword(updatedUser.getPassword());
+        }
+
+        GetUserDTO userDTO = this.modelMapper.map(this.userService.update(user), GetUserDTO.class);
+
+        return new ResponseEntity<>(userDTO, HttpStatus.OK);
+    }
+
     @PutMapping("/change-password")
-    public ResponseEntity<?> changePassword (@Valid @RequestBody ChangePasswordDTO changePasswordDTO) throws Exception
+    public ResponseEntity<BasicResponse<String>> changePassword (@Valid @RequestBody ChangePasswordDTO changePasswordDTO) throws Exception
     {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String message = this.userService.changePassword(
@@ -65,7 +91,26 @@ public class UserController
             authentication.getName()
         );
 
-        return new ResponseEntity<>(message, HttpStatus.OK);
+        BasicResponse<String> response = new BasicResponse<>(message, "successful");
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("/change-password-admin/{userId}")
+    public ResponseEntity<BasicResponse<String>> changePasswordAdmin (@Valid @RequestBody ChangePasswordAdminDTO changePasswordDTO, @PathVariable Long userId) throws Exception
+    {
+        if (userId <= 0)
+            throw new GeneralException("The user id must be greater than 0");
+
+        String message = this.userService.changePasswordAdmin(
+                changePasswordDTO.getNewPassword(),
+                changePasswordDTO.getPasswordConfirmation(),
+                userId
+        );
+
+        BasicResponse<String> response = new BasicResponse<>(message, "successful");
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/search/{id}")
@@ -111,6 +156,17 @@ public class UserController
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteById(@PathVariable Long id)
     {
+        User user = this.userService.findById(id);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = this.userService.findByUsername(authentication.getName());
+
+        if (!currentUser.getRole().getName().equals("ROLE_ADMIN")
+            && !currentUser.getId().equals(user.getId())
+        ) {
+            throw new GeneralException("You are not allowed to delete this user");
+        }
+
         String message = this.userService.deleteUser(id);
         BasicResponse<String> response = new BasicResponse<>(message, "successful");
 
@@ -120,10 +176,10 @@ public class UserController
     private List<GetUserDTO> convertListUserToGEtDTO(List<User> userList)
     {
         return userList
-                // The stream() let create a stream of the Collection
+                // The stream() lets us create a stream of the Collection,
                 // in this case a list of User entity
                 .stream()
-                // The map() method let us make a stream
+                // The map() method lets us make a stream
                 // based on the lambda in its parenthesis
 
                 /*

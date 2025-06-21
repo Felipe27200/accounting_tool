@@ -23,6 +23,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
@@ -48,19 +50,26 @@ public class SecurityConfig
     {
         return http
             .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .httpBasic(Customizer.withDefaults())
             .authorizeHttpRequests((authorize) -> {
                 authorize
                     // Routes without authentication
                     .requestMatchers(HttpMethod.POST, "api/login").permitAll()
                     .requestMatchers(HttpMethod.POST, "api/signup").permitAll()
-                    // .requestMatchers(HttpMethod.GET, "api/test").permitAll()
+
+                    // ADMIN's Authorizations
+                    .requestMatchers(HttpMethod.GET, "/api/users/search-username-coincidence/{name}").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/users/search-username/{name}").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/users/update-user/{id}").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/api/users/change-password-admin/{userId}").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/users/").hasRole("ADMIN")
                     .anyRequest().authenticated();
             })
-            .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())) // We will use the JWT to the configuration
-            // The session won't be store or manage by HTTPSession
-            // and it won't use it to get the security context.
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .httpBasic(Customizer.withDefaults())
+            .oauth2ResourceServer((oauth2) -> oauth2
+                    .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))) // We will use the JWT to the configuration
+            // The session won't be stored or managed by HTTPSession
+            // and, it won't be used it to get the security context.
             .build();
     }
 
@@ -134,5 +143,23 @@ public class SecurityConfig
         JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
 
         return new NimbusJwtEncoder(jwks);
+    }
+
+    /*
+    * This Bean defines how the Scope (the user's role) is extracted
+    * to authorize the user.
+    * */
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter()
+    {
+        JwtGrantedAuthoritiesConverter converter = new JwtGrantedAuthoritiesConverter();
+
+        converter.setAuthoritiesClaimName("scope");
+        converter.setAuthorityPrefix("");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(converter);
+
+        return jwtAuthenticationConverter;
     }
 }

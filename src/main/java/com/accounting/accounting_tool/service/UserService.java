@@ -107,4 +107,19 @@ public class UserService
 
         return "Password updated successfully";
     }
+
+    @Transactional
+    public String changePasswordAdmin(String newPassword, String passwordConfirmation, Long id) throws Exception
+    {
+        if (!newPassword.equals(passwordConfirmation))
+            throw new Exception("The new password and the password confirmation are not the same.");
+
+        User user = this.findById(id);
+
+        user.setPassword(this.passwordEncoder.encode(newPassword));
+        this.userRepository.save(user);
+
+        return "Password updated successfully";
+    }
+
 }
