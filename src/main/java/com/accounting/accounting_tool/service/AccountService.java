@@ -24,8 +24,6 @@ import java.util.List;
 public class AccountService
 {
     private final AccountRepository accountRepository;
-    private final FinancialStatementService financialStatementService;
-    private final CategoryService categoryService;
     private final UserService userService;
     private final DateFormatValidator dateFormat;
     private final CustomizedAccountRepositoryImpl customizedAccountRepository;
@@ -33,54 +31,34 @@ public class AccountService
     @Autowired
     public AccountService(
         AccountRepository accountRepository,
-        FinancialStatementService financialStatementService,
-        CategoryService categoryService,
         UserService userService,
         DateFormatValidator dateFormat,
         CustomizedAccountRepositoryImpl customizedAccountRepository
     ) {
         this.accountRepository = accountRepository;
-        this.financialStatementService = financialStatementService;
-        this.categoryService = categoryService;
         this.userService = userService;
         this.dateFormat = dateFormat;
         this.customizedAccountRepository = customizedAccountRepository;
     }
 
     @Transactional
-    public Account save(Account account, String username)
+    public Account save(Account account, String username, FinancialStatement financialStatement)
     {
-        User user = this.userService.findByUsername(username);
-        FinancialStatement financialStatement =
-            this.financialStatementService
-                .findByIdAndUser(
-                    account.getFinancialStatement().getId(),
-                    user.getUsername()
-                );
-
         this.validateAccount(financialStatement, account);
 
-        account.setCategory(this.getCategory(account, user));
         account.setFinancialStatement(financialStatement);
 
         return this.accountRepository.save(account);
     }
 
     @Transactional
-    public SelectAccountDTO update(Account account, String username)
+    public SelectAccountDTO update(Account account, String username, FinancialStatement financialStatement)
     {
         User user = userService.findByUsername(username);
-        FinancialStatement financialStatement =
-                this.financialStatementService
-                        .findByIdAndUser(
-                                account.getFinancialStatement().getId(),
-                                user.getUsername()
-                        );
 
         this.findByIdAndUser(account.getId(), user.getUsername());
         this.validateAccount(financialStatement, account);
 
-        account.setCategory(this.getCategory(account, user));
         account.setFinancialStatement(financialStatement);
 
         Account accountUpdated = this.accountRepository.save(account);
@@ -170,6 +148,23 @@ public class AccountService
         return "Account with id: " + id + " was deleted";
     }
 
+    @Transactional
+    public boolean deleteByCategoryId(Long categoryId)
+    {
+        this.accountRepository.deleteAccountByCategoryId(categoryId);
+
+        return true;
+    }
+
+
+    @Transactional
+    public boolean deleteByStatementId(Long statementId)
+    {
+        this.accountRepository.deleteAccountByStatementId(statementId);
+
+        return true;
+    }
+
     private void addUpAmounts(List<SelectAccountDTO> accounts)
     {
         for (int index = 0; index < accounts.size(); index++)
@@ -219,10 +214,5 @@ public class AccountService
         if (amount.compareTo(zero) < 0)
             throw new GeneralException("The amount for the account can not bet less than zero.");
 
-    }
-
-    private Category getCategory(Account account, User user)
-    {
-        return this.categoryService.findById(account.getCategory().getId(), user.getUsername());
     }
 }

@@ -18,16 +18,19 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final UserService userService;
     private final AccountCatalogueService accountCatalogueService;
+    private final AccountService accountService;
 
     @Autowired
     public CategoryService(
         CategoryRepository categoryRepository,
         UserService userService,
-        AccountCatalogueService accountCatalogueService
+        AccountCatalogueService accountCatalogueService,
+        AccountService accountService
     ) {
         this.categoryRepository = categoryRepository;
         this.userService = userService;
         this.accountCatalogueService = accountCatalogueService;
+        this.accountService = accountService;
     }
 
     @Transactional
@@ -119,6 +122,7 @@ public class CategoryService {
     {
         Category category = this.findById(categoryId, username);
 
+        this.accountService.deleteByCategoryId(category.getId());
         this.categoryRepository.deleteById(category.getId());
 
         return String.format("The category %s with the id %d was deleted successfully",

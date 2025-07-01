@@ -11,6 +11,8 @@ import com.accounting.accounting_tool.entity.FinancialStatement;
 import com.accounting.accounting_tool.error_handling.exception.GeneralException;
 import com.accounting.accounting_tool.response.BasicResponse;
 import com.accounting.accounting_tool.service.AccountService;
+import com.accounting.accounting_tool.service.CategoryService;
+import com.accounting.accounting_tool.service.FinancialStatementService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,19 +29,25 @@ import java.util.List;
 @RequestMapping(path = "${apiPrefix}/accounts")
 public class AccountController
 {
+    private final CategoryService categoryService;
     private final AccountService accountService;
     private final DateFormatValidator dateValidator;
     private final ModelMapperConfig modelMapper;
+    private final FinancialStatementService financialStatementService;
 
     @Autowired
     public AccountController(
         AccountService accountService,
         DateFormatValidator dateValidator,
-        ModelMapperConfig modelMapper
+        ModelMapperConfig modelMapper,
+        CategoryService categoryService,
+        FinancialStatementService financialStatementService
     ) {
         this.accountService = accountService;
         this.dateValidator = dateValidator;
         this.modelMapper = modelMapper;
+        this.categoryService = categoryService;
+        this.financialStatementService = financialStatementService;
     }
 
     @PostMapping("/create")
@@ -47,18 +55,36 @@ public class AccountController
     {
         this.validateAccount(accountDTO);
         Account account = this.mapDtoToEntity(accountDTO);
+        String username = getAuthUsername();
 
-        return new ResponseEntity<>(this.accountService.save(account, getAuthUsername()), HttpStatus.OK);
+        account.setCategory(this.categoryService.findById(accountDTO.getCategoryId(), username));
+        FinancialStatement financialStatement =
+                this.financialStatementService
+                        .findByIdAndUser(
+                                account.getFinancialStatement().getId(),
+                                username
+                        );
+
+        return new ResponseEntity<>(this.accountService.save(account, username, financialStatement), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<SelectAccountDTO> update(@Valid @RequestBody CreateAccountDTO accountDTO, @PathVariable Long id)
     {
         this.validateAccount(accountDTO);
+        String username = getAuthUsername();
 
         Account account = this.mapDtoToEntity(accountDTO, id);
+        account.setCategory(this.categoryService.findById(accountDTO.getCategoryId(), getAuthUsername()));
 
-        return new ResponseEntity<>(this.accountService.update(account, getAuthUsername()), HttpStatus.OK);
+        FinancialStatement financialStatement =
+                this.financialStatementService
+                        .findByIdAndUser(
+                                account.getFinancialStatement().getId(),
+                                username
+                        );
+
+        return new ResponseEntity<>(this.accountService.update(account, username, financialStatement), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

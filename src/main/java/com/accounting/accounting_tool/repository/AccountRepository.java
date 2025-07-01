@@ -3,8 +3,10 @@ package com.accounting.accounting_tool.repository;
 import com.accounting.accounting_tool.dto.account.SelectAccountDTO;
 import com.accounting.accounting_tool.entity.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -65,4 +67,12 @@ public interface AccountRepository extends JpaRepository<Account, Long>
         @Param("endDate") Date endDate,
         @Param("userId") Long userId
     );
+
+    @Modifying
+    @Query("DELETE FROM Account a WHERE a.category.id = :categoryId")
+    void deleteAccountByCategoryId(@Param("categoryId") Long categoryId);
+
+    @Modifying
+    @Query("DELETE FROM Account a WHERE a.financialStatement.id = :statementId")
+    void deleteAccountByStatementId(@Param("statementId") Long statementId);
 }

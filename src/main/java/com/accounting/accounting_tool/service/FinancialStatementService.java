@@ -15,11 +15,13 @@ import java.util.List;
 public class FinancialStatementService
 {
     private final FinancialStatementRepository financialStatementRepository;
+    private final AccountService accountService;
     private final UserService userService;
 
     @Autowired
-    public FinancialStatementService(FinancialStatementRepository financialStatementRepository, UserService userService) {
+    public FinancialStatementService(FinancialStatementRepository financialStatementRepository, UserService userService, AccountService accountService) {
         this.financialStatementRepository = financialStatementRepository;
+        this.accountService = accountService;
         this.userService = userService;
     }
 
@@ -105,11 +107,12 @@ public class FinancialStatementService
     	User user = this.userService.findByUsername(username);
     	
     	FinancialStatement financialStatement = this.findByIdAndUser(id, user.getUsername());
-    	
+
     	if (financialStatement == null)
             throw new NotFoundException("The financial statement with the id: " + id + " was not found.");
-    	
-    	this.financialStatementRepository.deleteById(id);
+
+        this.accountService.deleteByStatementId(financialStatement.getId());
+        this.financialStatementRepository.deleteById(id);
     	
     	return "The financial statement with the id: " + id + " was deleted successfully";
     }
