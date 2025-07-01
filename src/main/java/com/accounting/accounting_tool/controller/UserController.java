@@ -5,6 +5,7 @@ import com.accounting.accounting_tool.dto.login.ChangePasswordDTO;
 import com.accounting.accounting_tool.dto.user.GetUserDTO;
 import com.accounting.accounting_tool.dto.user.UpdateUserAdminDto;
 import com.accounting.accounting_tool.dto.user.UpdateUserDTO;
+import com.accounting.accounting_tool.entity.Role;
 import com.accounting.accounting_tool.entity.User;
 import com.accounting.accounting_tool.error_handling.exception.GeneralException;
 import com.accounting.accounting_tool.response.BasicResponse;
@@ -41,7 +42,7 @@ public class UserController
         * between source and destination properties
         * */
         this.modelMapper.typeMap(User.class, GetUserDTO.class)
-            .addMapping(User::getUsername, GetUserDTO::setUserName);
+            .addMapping(User::getUsername, GetUserDTO::setUsername);
     }
 
     @PutMapping("/update")
@@ -64,8 +65,11 @@ public class UserController
             throw new GeneralException("The user id must be greater than 0");
 
         User user = this.userService.findById(userId);
+        Role role = new Role();
 
         user.setName(updatedUser.getName());
+        role.setId(updatedUser.getIdRole());
+        user.setRole(role);
 
         if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty())
         {
@@ -117,6 +121,9 @@ public class UserController
     public ResponseEntity<?> findById(@PathVariable Long id)
     {
         User user = this.userService.findById(id);
+
+        this.isAllowed(user);
+
         GetUserDTO userDTO = this.modelMapper.map(user, GetUserDTO.class);
 
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
@@ -157,15 +164,7 @@ public class UserController
     public ResponseEntity<?> deleteById(@PathVariable Long id)
     {
         User user = this.userService.findById(id);
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = this.userService.findByUsername(authentication.getName());
-
-        if (!currentUser.getRole().getName().equals("ROLE_ADMIN")
-            && !currentUser.getId().equals(user.getId())
-        ) {
-            throw new GeneralException("You are not allowed to delete this user");
-        }
+        this.isAllowed(user);
 
         String message = this.userService.deleteUser(id);
         BasicResponse<String> response = new BasicResponse<>(message, "successful");
@@ -188,5 +187,17 @@ public class UserController
                 * */
                 .map((user) -> modelMapper.map(user, GetUserDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    private void isAllowed(User user)
+    {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = this.userService.findByUsername(authentication.getName());
+
+        if (!currentUser.getRole().getName().equals("ROLE_ADMIN")
+                && !currentUser.getId().equals(user.getId())
+        ) {
+            throw new GeneralException("You are not allowed to delete this user");
+        }
     }
 }

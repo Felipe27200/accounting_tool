@@ -1,5 +1,6 @@
 package com.accounting.accounting_tool.service;
 
+import com.accounting.accounting_tool.entity.Role;
 import com.accounting.accounting_tool.entity.User;
 import com.accounting.accounting_tool.error_handling.exception.DuplicateRecordException;
 import com.accounting.accounting_tool.error_handling.exception.NotFoundException;
@@ -16,13 +17,15 @@ import java.util.Optional;
 public class UserService
 {
     private UserRepository userRepository;
+    private RoleService roleService;
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService (UserRepository userRepository, PasswordEncoder passwordEncoder)
+    public UserService (UserRepository userRepository, PasswordEncoder passwordEncoder, RoleService roleService)
     {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roleService = roleService;
     }
 
     @Transactional
@@ -30,6 +33,7 @@ public class UserService
     {
         User oldUser = this.findById(userModified.getId());
         User username = this.userRepository.findUserByUsername(userModified.getUsername());
+        Role newRole = this.roleService.findById(userModified.getRole().getId());
 
         if (username != null
             && !username.getId().equals(oldUser.getId())
@@ -41,6 +45,7 @@ public class UserService
         }
 
         oldUser.setName(userModified.getName());
+        oldUser.setRole(newRole);
 
         return this.userRepository.save(oldUser);
     }

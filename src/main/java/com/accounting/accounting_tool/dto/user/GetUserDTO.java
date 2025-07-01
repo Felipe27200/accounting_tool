@@ -10,21 +10,21 @@ public class GetUserDTO
 {
     private Long id;
     private String name;
-    private String userName;
+    private String username;
     private Role role;
 
     public GetUserDTO() {
     }
 
-    public GetUserDTO(Long id, String name, String userName) {
-        this.userName = userName;
+    public GetUserDTO(Long id, String name, String username) {
+        this.username = username;
         this.name = name;
         this.id = id;
     }
 
-    public GetUserDTO(Long id, String name, String userName, Long role)
+    public GetUserDTO(Long id, String name, String username, Long role)
     {
-        this(id, userName, name);
+        this(id, username, name);
 
         Role roleEntity = new Role();
         roleEntity.setId(role);
@@ -32,8 +32,8 @@ public class GetUserDTO
         this.role = roleEntity;
     }
 
-    public GetUserDTO(Long id, String name, String userName, Role role) {
-        this(id, name, userName);
+    public GetUserDTO(Long id, String name, String username, Role role) {
+        this(id, name, username);
         this.role = role;
     }
 
@@ -53,12 +53,12 @@ public class GetUserDTO
         this.name = name;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public Role getRole() {

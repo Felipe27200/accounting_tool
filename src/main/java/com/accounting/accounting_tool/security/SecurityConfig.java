@@ -64,6 +64,8 @@ public class SecurityConfig
                     .requestMatchers(HttpMethod.PUT, "/api/users/update-user/{id}").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/api/users/change-password-admin/{userId}").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/api/users/").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/api/users/delete/{id}").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/roles/").hasRole("ADMIN")
                     .anyRequest().authenticated();
             })
             .oauth2ResourceServer((oauth2) -> oauth2
