@@ -46,7 +46,7 @@ public class UserController
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> update (@Valid @RequestBody UpdateUserDTO newName)
+    public ResponseEntity<GetUserDTO> update (@Valid @RequestBody UpdateUserDTO newName)
     {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -141,8 +141,13 @@ public class UserController
     @GetMapping("/search-username/{name}")
     public ResponseEntity<?> findByUsername(@PathVariable String name)
     {
-        User user = this.userService.findByUsername(name);
-        GetUserDTO userDTO = this.modelMapper.map(user, GetUserDTO.class);
+        String username = this.getAuthUsername();
+        User user = this.userService.findByUsername(username);
+
+        this.isAllowed(user);
+
+        User userFound = this.userService.findByUsername(name);
+        GetUserDTO userDTO = this.modelMapper.map(userFound, GetUserDTO.class);
 
         return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
@@ -199,5 +204,17 @@ public class UserController
         ) {
             throw new GeneralException("You are not allowed to delete this user");
         }
+    }
+
+    private Authentication getAuthentication()
+    {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
+
+    private String getAuthUsername()
+    {
+        Authentication authentication = this.getAuthentication();
+
+        return authentication.getName();
     }
 }

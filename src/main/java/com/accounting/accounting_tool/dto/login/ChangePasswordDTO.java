@@ -6,13 +6,13 @@ import jakarta.validation.constraints.Size;
 public class ChangePasswordDTO
 {
     @NotBlank(message = "The password is required")
-    @Size(min = 8, message = "The password have to have minimum 8 characters")
+    @Size(min = 8, message = "The password must have minimum 8 characters")
     private String oldPassword;
     @NotBlank(message = "The new password is required")
-    @Size(min = 8, message = "The password have to have minimum 8 characters")
+    @Size(min = 8, message = "The new password must have minimum 8 characters")
     private String newPassword;
-    @NotBlank(message = "The check new password is required")
-    @Size(min = 8, message = "The password have to have minimum 8 characters")
+    @NotBlank(message = "The Confirm Password is required")
+    @Size(min = 8, message = "The Confirm Password must have minimum 8 characters")
     private String passwordConfirmation;
 
     public ChangePasswordDTO() {
@@ -24,27 +24,27 @@ public class ChangePasswordDTO
         this.passwordConfirmation = passwordConfirmation;
     }
 
-    public @NotBlank(message = "The password is required") String getOldPassword() {
+    public String getOldPassword() {
         return oldPassword;
     }
 
-    public void setOldPassword(@NotBlank(message = "The password is required") String oldPassword) {
+    public void setOldPassword( String oldPassword) {
         this.oldPassword = oldPassword;
     }
 
-    public @NotBlank(message = "The new password is required") @Size(min = 8) String getNewPassword() {
+    public String getNewPassword() {
         return newPassword;
     }
 
-    public void setNewPassword(@NotBlank(message = "The new password is required") @Size(min = 8) String newPassword) {
+    public void setNewPassword( String newPassword) {
         this.newPassword = newPassword;
     }
 
-    public @NotBlank(message = "The check new password is required") @Size(min = 8) String getPasswordConfirmation() {
+    public String getPasswordConfirmation() {
         return passwordConfirmation;
     }
 
-    public void setPasswordConfirmation(@NotBlank(message = "The check new password is required") @Size(min = 8) String passwordConfirmation) {
+    public void setPasswordConfirmation( String passwordConfirmation) {
         this.passwordConfirmation = passwordConfirmation;
     }
 }

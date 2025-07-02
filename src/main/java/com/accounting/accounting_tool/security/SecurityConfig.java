@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,6 +17,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,18 +30,39 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import javax.sql.DataSource;
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig
 {
+    @Value("${cors.origin}")
+    private String origin;
     private final RsaKeyProperties rsaKeys;
 
     @Autowired
     public SecurityConfig(RsaKeyProperties rsaKeys)
     {
         this.rsaKeys = rsaKeys;
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource ()
+    {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+
+        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", corsConfiguration);
+
+        return source;
     }
 
     /*
@@ -49,7 +72,9 @@ public class SecurityConfig
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
     {
         return http
-            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+//                .cors(Customizer.withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .httpBasic(Customizer.withDefaults())
             .authorizeHttpRequests((authorize) -> {
@@ -60,7 +85,6 @@ public class SecurityConfig
 
                     // ADMIN's Authorizations
                     .requestMatchers(HttpMethod.GET, "/api/users/search-username-coincidence/{name}").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/api/users/search-username/{name}").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/api/users/update-user/{id}").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/api/users/change-password-admin/{userId}").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET, "/api/users/").hasRole("ADMIN")
