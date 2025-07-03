@@ -22,3 +22,5 @@ rsa.private-key=classpath:certs/private.pem
 rsa.public-key=classpath:certs/public.pem
 
 logging.level.org.springframwork.security=DEBUG
+
+cors.origin
