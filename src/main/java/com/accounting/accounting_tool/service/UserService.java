@@ -96,7 +96,7 @@ public class UserService
     public String changePassword(String oldPassword, String newPassword, String passwordConfirmation, String username) throws Exception
     {
         if (!newPassword.equals(passwordConfirmation))
-            throw new Exception("The new password and the password confirmation are not the same.");
+            throw new Exception("The new password and the Confirm Password are not the same.");
 
         User user = this.findByUsername(username);
 
@@ -117,7 +117,7 @@ public class UserService
     public String changePasswordAdmin(String newPassword, String passwordConfirmation, Long id) throws Exception
     {
         if (!newPassword.equals(passwordConfirmation))
-            throw new Exception("The new password and the password confirmation are not the same.");
+            throw new Exception("The new password and the Confirm Password are not the same.");
 
         User user = this.findById(id);
 

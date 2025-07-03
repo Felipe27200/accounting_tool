@@ -6,10 +6,10 @@ import jakarta.validation.constraints.Size;
 public class ChangePasswordAdminDTO
 {
     @NotBlank(message = "The new password is required")
-    @Size(min = 8, message = "The password have to have minimum 8 characters")
+    @Size(min = 8, message = "The new password must have minimum 8 characters")
     private String newPassword;
-    @NotBlank(message = "The check new password is required")
-    @Size(min = 8, message = "The password have to have minimum 8 characters")
+    @NotBlank(message = "The Confirm Password is required")
+    @Size(min = 8, message = "The Confirm Password must have minimum 8 characters")
     private String passwordConfirmation;
 
     public ChangePasswordAdminDTO() {
