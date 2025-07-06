@@ -79,7 +79,7 @@ public class CustomizedAccountRepositoryImpl implements CustomizedAccountReposit
         conditions += " AND u.username = ?";
         parameters.add(username);
 
-        String query = this.filterQuery() + conditions + "\n order by date";
+        String query = this.filterQuery() + conditions + "\n order by date, account_id";
 
         // This is the way to run a script
         List<SelectAccountDTO> accounts = this.jdbcTemplate.query(query,

@@ -10,7 +10,8 @@
 	</parent>
 	<groupId>com.accounting</groupId>
 	<artifactId>accounting_tool</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
+	<packaging>war</packaging>
 	<name>accounting_tool</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>

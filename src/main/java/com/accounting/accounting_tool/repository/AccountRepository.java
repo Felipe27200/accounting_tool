@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -51,7 +50,7 @@ public interface AccountRepository extends JpaRepository<Account, Long>
     @Query(BASES_SELECT + "WHERE a.date = :date AND u.id = :userId")
     List<SelectAccountDTO> findByDateAndUser(@Param("date") Date date, @Param("userId") Long userId);
 
-    @Query(BASES_SELECT + "WHERE f.id = :statementId AND u.id = :userId ORDER BY a.date")
+    @Query(BASES_SELECT + "WHERE f.id = :statementId AND u.id = :userId ORDER BY a.date, a.id")
     List<SelectAccountDTO> findByStatementId(@Param("statementId") Long statementId, @Param("userId") Long userId);
 
     @Query(BASES_SELECT + "WHERE (a.date BETWEEN :startDate AND :endDate) AND u.id = :userId")
