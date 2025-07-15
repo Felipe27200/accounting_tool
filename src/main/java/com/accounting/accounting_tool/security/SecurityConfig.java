@@ -79,6 +79,7 @@ public class SecurityConfig
             .authorizeHttpRequests((authorize) -> {
                 authorize
                     // Routes without authentication
+                    .requestMatchers(HttpMethod.GET, "/api/ok_prueba").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/signup").permitAll()
 

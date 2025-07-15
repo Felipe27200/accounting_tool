@@ -44,6 +44,14 @@ public class AuthUserController
         this.authenticationManager = authenticationManager;
     }
 
+    @GetMapping("/ok_prueba")
+    public ResponseEntity<BasicResponse<String>> ok() {
+        BasicResponse<String> basicResponse = new BasicResponse<>();
+        basicResponse.setBody("It's ok");
+
+        return new ResponseEntity<>(basicResponse, HttpStatus.OK);
+    }
+
     @PostMapping("/signup")
     public ResponseEntity<Object> registerUser(@Valid @RequestBody SignUpDTO signUPDto)
     {
