@@ -1,5 +1,6 @@
 package com.accounting.accounting_tool.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -34,6 +35,7 @@ public class User
     @Column(
         nullable = false
     )
+    @JsonIgnore
     private String password;
 
     @ManyToOne

@@ -3,12 +3,10 @@ package com.accounting.accounting_tool.entity;
 import jakarta.persistence.*;
 
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Table(
-    name = "financial_statements",
-    uniqueConstraints = @UniqueConstraint(name = "statement_name", columnNames = "name")
+    name = "financial_statements"
 )
 public class FinancialStatement
 {
@@ -25,7 +23,7 @@ public class FinancialStatement
     private Date initDate;
 
     @Temporal(TemporalType.DATE)
-    @Column(name = "end_date", nullable = false)
+    @Column(name = "end_date", nullable = true)
     private Date endDate;
 
     @ManyToOne()
@@ -36,21 +34,11 @@ public class FinancialStatement
     )
     private User user;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-        name = "category_statement",
-        joinColumns = @JoinColumn(
-            name = "financial_statement_id",
-            referencedColumnName = "financial_statement_id"
-        ),
-        inverseJoinColumns = @JoinColumn(
-            name = "category_id",
-            referencedColumnName = "category_id"
-        )
-    )
-    private List<Category> categories;
-
     public FinancialStatement() {
+    }
+
+    public FinancialStatement(Long id) {
+        this.id = id;
     }
 
     public FinancialStatement(Long id, String name, Date initDate, Date endDate) {
@@ -58,6 +46,14 @@ public class FinancialStatement
         this.name = name;
         this.initDate = initDate;
         this.endDate = endDate;
+    }
+
+    public FinancialStatement(Long id, String name, Date initDate, Date endDate, User user) {
+        this.id = id;
+        this.name = name;
+        this.initDate = initDate;
+        this.endDate = endDate;
+        this.user = user;
     }
 
     public Long getId() {

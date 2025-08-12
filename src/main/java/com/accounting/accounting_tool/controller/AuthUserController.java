@@ -1,8 +1,9 @@
 package com.accounting.accounting_tool.controller;
 
-import com.accounting.accounting_tool.dto.login.LoginDto;
-import com.accounting.accounting_tool.dto.login.SignUPDto;
+import com.accounting.accounting_tool.dto.login.LoginDTO;
+import com.accounting.accounting_tool.dto.login.SignUpDTO;
 import com.accounting.accounting_tool.entity.User;
+import com.accounting.accounting_tool.error_handling.response.CustomErrorResponse;
 import com.accounting.accounting_tool.repository.UserRepository;
 import com.accounting.accounting_tool.response.BasicResponse;
 import com.accounting.accounting_tool.service.AuthUserService;
@@ -43,13 +44,26 @@ public class AuthUserController
         this.authenticationManager = authenticationManager;
     }
 
+    @GetMapping("/ok_prueba")
+    public ResponseEntity<BasicResponse<String>> ok() {
+        BasicResponse<String> basicResponse = new BasicResponse<>();
+        basicResponse.setBody("It's ok");
+
+        return new ResponseEntity<>(basicResponse, HttpStatus.OK);
+    }
+
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody SignUPDto signUPDto)
+    public ResponseEntity<Object> registerUser(@Valid @RequestBody SignUpDTO signUPDto)
     {
         if (userRepository.findUserByUsername(signUPDto.getUsername()) != null)
-            return new ResponseEntity<>("Username is already exist!", HttpStatus.BAD_REQUEST);
+        {
+            CustomErrorResponse error = new CustomErrorResponse();
 
-        // Creating User object
+            error.setMessage("Username is already in use");
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        }
+
+        // Creating User's object
         User newUser = new User(
             signUPDto.getName(),
             passwordEncoder.encode(signUPDto.getPassword()),
@@ -57,11 +71,16 @@ public class AuthUserController
 
         this.authUserService.createUser(newUser, "ROLE_PERSONAL_ACCOUNTANT");
 
-        return new ResponseEntity<>("User successful registered!!!", HttpStatus.CREATED);
+        BasicResponse basicResponse = new BasicResponse();
+
+        basicResponse.setMessage("Success");
+        basicResponse.setBody("User successful registered!!!");
+
+        return new ResponseEntity<>(basicResponse, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public BasicResponse<?> authenticateUser(@Valid @RequestBody LoginDto loginDto)
+    public BasicResponse<?> authenticateUser(@Valid @RequestBody LoginDTO loginDto)
     {
         Authentication authentication = authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword())

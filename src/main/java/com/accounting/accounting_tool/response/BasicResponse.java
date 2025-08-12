@@ -3,17 +3,17 @@ package com.accounting.accounting_tool.response;
 public class BasicResponse <T>
 {
     private T body;
-    private String message;
+    private String status;
 
     public BasicResponse() { }
 
-    public BasicResponse(String message) {
-        this.message = message;
+    public BasicResponse(String status) {
+        this.status = status;
     }
 
-    public BasicResponse(T body, String message) {
+    public BasicResponse(T body, String status) {
         this.body = body;
-        this.message = message;
+        this.status = status;
     }
 
     public T getBody() {
@@ -25,10 +25,15 @@ public class BasicResponse <T>
     }
 
     public String getMessage() {
-        return message;
+        return status;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setMessage(String status) {
+        this.status = status;
+    }
+
+    public String getStatus()
+    {
+        return status;
     }
 }

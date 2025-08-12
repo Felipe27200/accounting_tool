@@ -1,0 +1,218 @@
+package com.accounting.accounting_tool.service;
+
+import com.accounting.accounting_tool.common.DateFormatValidator;
+import com.accounting.accounting_tool.dto.account.FilterAccountDTO;
+import com.accounting.accounting_tool.dto.account.SelectAccountDTO;
+import com.accounting.accounting_tool.entity.Account;
+import com.accounting.accounting_tool.entity.Category;
+import com.accounting.accounting_tool.entity.FinancialStatement;
+import com.accounting.accounting_tool.entity.User;
+import com.accounting.accounting_tool.error_handling.exception.GeneralException;
+import com.accounting.accounting_tool.error_handling.exception.NotFoundException;
+import com.accounting.accounting_tool.repository.AccountRepository;
+import com.accounting.accounting_tool.repository.CustomizedAccountRepositoryImpl;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+@Service
+public class AccountService
+{
+    private final AccountRepository accountRepository;
+    private final UserService userService;
+    private final DateFormatValidator dateFormat;
+    private final CustomizedAccountRepositoryImpl customizedAccountRepository;
+
+    @Autowired
+    public AccountService(
+        AccountRepository accountRepository,
+        UserService userService,
+        DateFormatValidator dateFormat,
+        CustomizedAccountRepositoryImpl customizedAccountRepository
+    ) {
+        this.accountRepository = accountRepository;
+        this.userService = userService;
+        this.dateFormat = dateFormat;
+        this.customizedAccountRepository = customizedAccountRepository;
+    }
+
+    @Transactional
+    public Account save(Account account, String username, FinancialStatement financialStatement)
+    {
+        this.validateAccount(financialStatement, account);
+
+        account.setFinancialStatement(financialStatement);
+
+        return this.accountRepository.save(account);
+    }
+
+    @Transactional
+    public SelectAccountDTO update(Account account, String username, FinancialStatement financialStatement)
+    {
+        User user = userService.findByUsername(username);
+
+        this.findByIdAndUser(account.getId(), user.getUsername());
+        this.validateAccount(financialStatement, account);
+
+        account.setFinancialStatement(financialStatement);
+
+        Account accountUpdated = this.accountRepository.save(account);
+
+        return this.accountRepository.findAccountById(accountUpdated.getId());
+    }
+
+    public List<SelectAccountDTO> filterAccount(FilterAccountDTO filterAccountDTO, String username)
+    {
+    	User user = this.userService.findByUsername(username);
+
+        List<SelectAccountDTO> accounts = this.customizedAccountRepository.filterAccounts(filterAccountDTO, user.getUsername());
+        this.addUpAmounts(accounts);
+
+        return accounts;
+    }
+
+    public SelectAccountDTO findByIdAndUser(Long id, String username)
+    {
+        User user = this.userService.findByUsername(username);
+        SelectAccountDTO account = this.accountRepository.findAccountByIdAndUser(id, user.getId());
+
+        if (account == null)
+            throw new NotFoundException("The account with the id: " + id + " was not found.");
+
+        return account;
+    }
+
+    public List<SelectAccountDTO> findByStatementId(Long statementId, String username)
+    {
+        User user = this.userService.findByUsername(username);
+        List<SelectAccountDTO> accounts = this.accountRepository.findByStatementId(statementId, user.getId());
+
+        if (accounts == null)
+            throw new NotFoundException("The account with the statement id: " + statementId + " was not found.");
+
+        this.addUpAmounts(accounts);
+
+        return accounts;
+    }
+
+    public List<SelectAccountDTO> findByDateAndUser(Date date, String username)
+    {
+        User user = this.userService.findByUsername(username);
+        List<SelectAccountDTO> accounts = this.accountRepository.findByDateAndUser(date, user.getId());
+
+        if (accounts == null || accounts.size() <= 0)
+        {
+            SimpleDateFormat formatter = (new SimpleDateFormat("yyyy-MM-dd"));
+            String format = formatter.format(date);
+
+            throw new NotFoundException("Accounts with date: " + format + " were not found.");
+        }
+
+        this.addUpAmounts(accounts);
+
+        return accounts;
+    }
+
+    public List<SelectAccountDTO> findByDateRangeAndUser(String startDate, String endDate, String username)
+    {
+        User user = this.userService.findByUsername(username);
+        List<SelectAccountDTO> accounts = this.accountRepository.findByDatRageAndUser(startDate, endDate, user.getId());
+
+        this.addUpAmounts(accounts);
+
+        return accounts;
+    }
+
+    public List<SelectAccountDTO> findAllByUser(String username)
+    {
+        User user = this.userService.findByUsername(username);
+        List<SelectAccountDTO> accounts = this.accountRepository.findAllByUser(user.getId());
+
+        this.addUpAmounts(accounts);
+
+        return accounts;
+    }
+
+    @Transactional
+    public String deleteById(Long id,String username)
+    {
+        SelectAccountDTO accountDto = this.findByIdAndUser(id, username);
+
+        this.accountRepository.deleteById(accountDto.getId());
+
+        return "Account with id: " + id + " was deleted";
+    }
+
+    @Transactional
+    public boolean deleteByCategoryId(Long categoryId)
+    {
+        this.accountRepository.deleteAccountByCategoryId(categoryId);
+
+        return true;
+    }
+
+
+    @Transactional
+    public boolean deleteByStatementId(Long statementId)
+    {
+        this.accountRepository.deleteAccountByStatementId(statementId);
+
+        return true;
+    }
+
+    private void addUpAmounts(List<SelectAccountDTO> accounts)
+    {
+        for (int index = 0; index < accounts.size(); index++)
+        {
+            Integer typeAccount = null;
+            SelectAccountDTO currentAccount = accounts.get(index);
+
+            if (currentAccount.getCategoryDTO().getAccountCatalogue() != null)
+                typeAccount = currentAccount.getCategoryDTO().getAccountCatalogue().typeAccount();
+            else
+                typeAccount = currentAccount.getCategoryDTO().getTypeAccount();
+
+            if (typeAccount == null)
+                throw  new GeneralException("The amount can not have an empty type account.");
+
+            BigDecimal previousTotal = (index > 0 && accounts.get(index - 1).getTotal() != null)
+                    ? accounts.get(index - 1).getTotal()
+                    : BigDecimal.ZERO;
+
+            if (typeAccount.equals(1))
+                currentAccount.setTotal(currentAccount.getAmount().add(previousTotal));
+            else
+                currentAccount.setTotal(previousTotal.subtract(currentAccount.getAmount()));
+        }
+    }
+
+    private void validateAccount(FinancialStatement financialStatement, Account account)
+    {
+        if (financialStatement.getEndDate() != null
+                && !dateFormat.isDateInRange(account.getDate(), financialStatement.getInitDate(), financialStatement.getEndDate()))
+        {
+            throw new GeneralException("The date is outside of the range of the financial statement");
+        }
+        else if (!dateFormat.isGreaterDate(account.getDate(), financialStatement.getInitDate())
+                    && !(account.getDate().compareTo(financialStatement.getInitDate()) >= 0))
+        {
+            throw new GeneralException("The date is outside of the range of the financial statement");
+        }
+
+        this.isAmountValid(account.getAmount());
+    }
+
+    private void isAmountValid(BigDecimal amount)
+    {
+        BigDecimal zero = new BigDecimal(0);
+
+        if (amount.compareTo(zero) < 0)
+            throw new GeneralException("The amount for the account can not bet less than zero.");
+
+    }
+}
