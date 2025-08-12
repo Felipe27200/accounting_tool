@@ -3,19 +3,19 @@ package com.accounting.accounting_tool.dto.login;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class LoginDto
+public class LoginDTO
 {
     @NotBlank(message = "The username is required")
     private String username;
 
     @NotBlank(message = "The password is required")
-    // @Size(min = 8)
+    @Size(min = 8, message = "The password must have minimum 8 characters")
     private String password;
 
-    public LoginDto() {
+    public LoginDTO() {
     }
 
-    public LoginDto(String username, String password) {
+    public LoginDTO(String username, String password) {
         this.username = username;
         this.password = password;
     }

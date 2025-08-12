@@ -25,13 +25,21 @@ public class Category
     )
     private Long parentCategory;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+        name = "user_id",
+        referencedColumnName = "user_id",
+        nullable = false
+    )
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
         name = "account_catalogue_id",
         referencedColumnName = "account_catalogue_id",
         nullable = false
     )
-    private AccountCatalogue catalogue;
+    private AccountCatalogue accountCatalogue;
 
     public Category() { }
 
@@ -48,17 +56,26 @@ public class Category
         this.name = name;
     }
 
-    public Category(Long id, String name, Long parentCategory, AccountCatalogue catalogue) {
+    public Category(Long id, String name, Long parentCategory)
+    {
         this.id = id;
         this.name = name;
         this.parentCategory = parentCategory;
-        this.catalogue = catalogue;
     }
 
-    public Category(Long id, String name, Long parentCategory) {
+    public Category(Long id, String name, Long parentCategory, User user) {
         this.id = id;
         this.name = name;
         this.parentCategory = parentCategory;
+        this.user = user;
+    }
+
+    public Category(Long id, String name, Long parentCategory, User user, AccountCatalogue accountCatalogue) {
+        this.id = id;
+        this.name = name;
+        this.parentCategory = parentCategory;
+        this.user = user;
+        this.accountCatalogue = accountCatalogue;
     }
 
     public Long getId() {
@@ -85,11 +102,19 @@ public class Category
         this.parentCategory = parentCategory;
     }
 
-    public AccountCatalogue getCatalogue() {
-        return catalogue;
+    public User getUser() {
+        return user;
     }
 
-    public void setCatalogue(AccountCatalogue catalogue) {
-        this.catalogue = catalogue;
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public AccountCatalogue getAccountCatalogue() {
+        return accountCatalogue;
+    }
+
+    public void setAccountCatalogue(AccountCatalogue accountCatalogue) {
+        this.accountCatalogue = accountCatalogue;
     }
 }

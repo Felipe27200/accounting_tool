@@ -9,23 +9,27 @@ public class AccountCatalogueDTO
     @NotBlank(message = "The name of Account Catalogue can not be empty.")
     private String name;
     @NotNull(message = "The type of Account Catalogue can not be empty.")
-    @JsonProperty("isEarning")
-    private boolean isEarning;
+    @JsonProperty("typeAccount")
+    private Integer typeAccount;
 
     public AccountCatalogueDTO() {
     }
 
-    public AccountCatalogueDTO(String name, boolean isEarning) {
+    public AccountCatalogueDTO(String name, Integer typeAccount) {
         this.name = name;
-        this.isEarning = isEarning;
+        this.typeAccount = typeAccount;
     }
 
-    public boolean isEarning() {
-        return isEarning;
+    public Integer typeAccount() {
+        return typeAccount;
     }
 
-    public void setEarning(boolean earning) {
-        isEarning = earning;
+    public void setTypeAccount(Integer typeAccount) {
+        this.typeAccount = typeAccount;
+    }
+
+    public Integer getTypeAccount() {
+        return typeAccount;
     }
 
     public String getName() {

@@ -2,6 +2,7 @@ package com.accounting.accounting_tool.controller;
 
 import com.accounting.accounting_tool.dto.account_catalogue.AccountCatalogueDTO;
 import com.accounting.accounting_tool.entity.AccountCatalogue;
+import com.accounting.accounting_tool.response.BasicResponse;
 import com.accounting.accounting_tool.service.AccountCatalogueService;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
@@ -65,7 +66,8 @@ public class AccountCatalogueController
     private ResponseEntity<?> delete (@PathVariable Long id)
     {
         String message = this.accountCatalogueService.deleteById(id);
+        BasicResponse<String> response = new BasicResponse<>(message, "successful");
 
-        return new ResponseEntity<>(message, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
