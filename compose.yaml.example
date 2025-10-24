@@ -1,0 +1,20 @@
+services:
+  # First image and container
+  frontend:
+    build: ./frontend # Path to the angular project
+    container_name: accounting-tool-frontend
+    ports:
+      - 4200:80
+    # This ensures the frontend container starts
+    # after the backend container starts
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    container_name: accounting-tool-backend
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+
